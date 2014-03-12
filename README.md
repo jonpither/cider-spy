@@ -8,10 +8,14 @@ Spy on CIDER nREPL sessions
 
 To help developers and teams share information about development flows.
 
+### Make namespaces links
+
 ### Initial Ideas
 
 #### Namespace intelligence
 
+* Could actually be useful as a "learnt" project navigation tool
+i.e. menu of where you've been (with some stats)
 * I spent x amount of time in this namespace today
 * track a users journey
 

@@ -60,4 +60,8 @@
 \\{cider-popup-buffer-mode-map}"
   (setq-local truncate-lines t))
 
+(font-lock-add-keywords 'cider-spy-buffer-mode
+                        '(("Your namespace trail:" . font-lock-keyword-face)
+                          ("Your function calls:" . font-lock-function-name-face)))
+
 (provide 'cider-spy)
