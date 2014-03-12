@@ -44,7 +44,9 @@
   "Refresh current buffer to match spy data."
   (interactive)
   (with-current-buffer "*cider spy*"
-    (cider-emit-into-popup-buffer (current-buffer) "Oops")))
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (cider-spy-summary))))
 
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
