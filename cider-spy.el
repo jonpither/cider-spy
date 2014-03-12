@@ -26,6 +26,7 @@
 (require 'cider-interaction)
 
 (defun cider-spy-summary ()
+  (interactive)
   (let ((buffer (cider-popup-buffer "*cider summary*" t)))
     (nrepl-send-request (list "op" "summary")
                         (nrepl-make-response-handler
