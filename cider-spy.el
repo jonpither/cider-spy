@@ -27,7 +27,9 @@
 
 (defun cider-spy-summary ()
   (interactive)
-  (let ((buffer (cider-popup-buffer "*cider summary*" t)))
+  (let ((buffer (cider-popup-buffer "*cider spy*" t)))
+    (with-current-buffer buffer
+        (cider-spy-buffer-mode))
     (nrepl-send-request (list "op" "summary")
                         (nrepl-make-response-handler
                          buffer
@@ -37,5 +39,23 @@
                          (lambda (buffer _str)
                            (cider-emit-into-popup-buffer buffer "Oops"))
                          '()))))
+
+(defun cider-spy-refresh ()
+  "Refresh current buffer to match spy data."
+  (interactive)
+  (with-current-buffer "*cider spy*"
+    (cider-emit-into-popup-buffer (current-buffer) "Oops")))
+
+(defvar cider-spy-buffer-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "g" 'cider-spy-refresh)
+    map))
+
+(define-derived-mode cider-spy-buffer-mode cider-popup-buffer-mode
+  "Cider-Spy"
+  "Cider Spy Buffer Mode.
+\\{cider-spy-mode-buffer-mode-map}
+\\{cider-popup-buffer-mode-map}"
+  (setq-local truncate-lines t))
 
 (provide 'cider-spy)
