@@ -11,6 +11,7 @@ To help developers and teams share information about development flows.
 #### Namespace intelligence
 
 * I spent x amount of time in this namespace today
+* track a users journey
 
 #### Function intelligence
 
@@ -31,3 +32,8 @@ Most popular functions
 Good question. It could be exclusively nrepl-middleware. I guess there's ideas like cider-spy might be able to provide new CIDER functionality based of spied on data.. like most popular commands.
 
 A follow on is that I should revise whether I need a dependency on cider-nrepl
+
+## Future ideas
+
+Connected repl sessions - i.e. send someone some code
+Dev x has been on this file.. etc etc.
