@@ -34,7 +34,7 @@
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)
-                           (cider-emit-into-popup-buffer buffer str))
+                           (cider-emit-into-popup-buffer buffer (concat str "\n")))
                          '()
                          (lambda (buffer _str)
                            (cider-emit-into-popup-buffer buffer "Oops"))
