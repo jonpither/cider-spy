@@ -18,6 +18,7 @@ To help developers and teams share information about development flows.
 i.e. menu of where you've been (with some stats)
 * I spent x amount of time in this namespace today
 * track a users journey
+* Can navigate from hunks to get to nses
 
 #### Function intelligence
 
@@ -45,3 +46,8 @@ Connected repl sessions - i.e. send someone some code
 Dev x has been on this file.. etc etc.
 Where is everyone right now? (project specific)
 Need to do refresh (g) that'd be cool
+
+## Immediate TODOs
+
+* Ability to clear
+* Research compiling namespaces - how does CIDER do this?
