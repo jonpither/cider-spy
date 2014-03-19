@@ -45,9 +45,8 @@ A follow on is that I should revise whether I need a dependency on cider-nrepl
 Connected repl sessions - i.e. send someone some code
 Dev x has been on this file.. etc etc.
 Where is everyone right now? (project specific)
-Need to do refresh (g) that'd be cool
 
 ## Immediate TODOs
 
-* Ability to clear
-* Research compiling namespaces - how does CIDER do this?
+* Ability to clear the spy buffer
+* Implement https://github.com/clojure-emacs/cider/issues/477. Could have a toggle to print the time duration after each request.

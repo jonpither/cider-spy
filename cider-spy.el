@@ -60,8 +60,10 @@
 \\{cider-popup-buffer-mode-map}"
   (setq-local truncate-lines t))
 
+;; TODO use a regexp
 (font-lock-add-keywords 'cider-spy-buffer-mode
                         '(("Your namespace trail:" . font-lock-keyword-face)
-                          ("Your function calls:" . font-lock-function-name-face)))
+                          ("Your function calls:" . font-lock-function-name-face)
+                          ("Your files loaded:" . font-lock-function-name-face)))
 
 (provide 'cider-spy)
