@@ -10,7 +10,8 @@ To help developers and teams share information about development flows.
 
 ## TODOS
 
-* Ability to clear the spy buffer
+* Remove junk from function calls if possible
+* Ability to clear/reset the spy buffer
 * Namespaces/hunks should be links
 * Functions run most often outside of immediate namespace
 * Functions run that fail most often
