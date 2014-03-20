@@ -25,32 +25,42 @@
 
 (require 'cider-interaction)
 
-(defun cider-spy-summary ()
-  (interactive)
-  (let ((buffer (cider-popup-buffer "*cider spy*" t)))
-    (with-current-buffer buffer
-        (cider-spy-buffer-mode))
-    (nrepl-send-request (list "op" "summary")
+(defcustom cider-spy-auto-refresh t
+  "When `cider-spy-auto-refresh' is set to t, updates from the nREPL server
+will appear automatically in the CIDER SPY buffer."
+  :type 'boolean
+  :group 'cider-spy)
+
+(defun cider-spy-attach-nrepl-response-handler ()
+  "Attach an nREPL response handler.
+When a response comes from nREPL relevant to the CIDER-SPY summary operation,
+the current buffer will be updated accordingly."
+  (let ((buffer (current-buffer)))
+    (nrepl-send-request (list "op" "summary" "auto-refresh"
+                              ;; TODO do below properly in elisp
+                              (if cider-spy-auto-refresh "true" "false"))
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)
+                           ;; TODO DOESNT WORK, PROBLEM NEEDS SOLVING
+;;                           (erase-buffer)
                            (cider-emit-into-popup-buffer buffer (concat str "\n")))
                          '()
                          (lambda (buffer _str)
+;;                           (erase-buffer)
                            (cider-emit-into-popup-buffer buffer "Oops"))
                          '()))))
 
-(defun cider-spy-refresh ()
-  "Refresh current buffer to match spy data."
+(defun cider-spy-summary ()
+  "Create *cider-spy* buffer and attach listener."
   (interactive)
-  (with-current-buffer "*cider spy*"
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (cider-spy-summary))))
+  (with-current-buffer (cider-popup-buffer "*cider spy*" t)
+    (cider-spy-buffer-mode)
+    (cider-spy-attach-nrepl-response-handler)))
 
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "g" 'cider-spy-refresh)
+    (define-key map "g" 'cider-spy-summary)
     map))
 
 (define-derived-mode cider-spy-buffer-mode cider-popup-buffer-mode
@@ -67,3 +77,5 @@
                           ("Your files loaded:" . font-lock-function-name-face)))
 
 (provide 'cider-spy)
+
+;;(setq cider-spy-auto-refresh nil)
