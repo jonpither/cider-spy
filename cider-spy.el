@@ -31,6 +31,13 @@ will appear automatically in the CIDER SPY buffer."
   :type 'boolean
   :group 'cider-spy)
 
+(defun cider-spy-refresh-buffer (buffer str)
+  "Emit into the cider spy popup buffer, wiping it first."
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t))
+      (erase-buffer)))
+  (cider-emit-into-popup-buffer buffer str))
+
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
 When a response comes from nREPL relevant to the CIDER-SPY summary operation,
@@ -42,13 +49,10 @@ the current buffer will be updated accordingly."
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)
-                           ;; TODO DOESNT WORK, PROBLEM NEEDS SOLVING
-;;                           (erase-buffer)
-                           (cider-emit-into-popup-buffer buffer (concat str "\n")))
+                           (cider-spy-refresh-buffer buffer (concat str "\n")))
                          '()
                          (lambda (buffer _str)
-;;                           (erase-buffer)
-                           (cider-emit-into-popup-buffer buffer "Oops"))
+                           (cider-spy-refresh-buffer buffer "Oops"))
                          '()))))
 
 (defun cider-spy-summary ()
@@ -78,4 +82,4 @@ the current buffer will be updated accordingly."
 
 (provide 'cider-spy)
 
-;;(setq cider-spy-auto-refresh nil)
+;; (setq cider-spy-auto-refresh t)
