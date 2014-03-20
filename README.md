@@ -2,7 +2,7 @@ THIS PROJECT IS UNSTABLE / IN DEVELOPMENT
 
 # CIDER Spy
 
-Spy on CIDER nREPL sessions
+Spy on CIDER nREPL sessions. Depends on [cider-spy-nrepl](https://github.com/jonpither/cider-spy-nrepl).
 
 ## Purpose
 
@@ -31,3 +31,9 @@ To help developers and teams share information about development flows.
 * Dev x has been on this file.. etc etc.
 * Popup some code in a buffer on another devs emacs
 * Where is everyone right now? (project specific)
+
+# License
+
+Copyright © 2014 Jon Pither
+
+Distributed under the GNU General Public License, version 3
