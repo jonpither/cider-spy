@@ -11,6 +11,8 @@ To help developers and teams share information about development flows.
 
 ## TODOS
 
+* Split out an interaction file.
+* Do a ping
 * Remove junk from function calls if possible
 * Ability to clear/reset the spy buffer
 * Namespaces/hunks should be links
