@@ -32,7 +32,7 @@ will appear automatically in the CIDER SPY buffer."
   :group 'cider-spy)
 
 (defcustom cider-spy-hub-endpoint t
-  "Set `cider-spy-endpoint' to designate a CIDER-SPY hub for sharing information
+  "Set `cider-spy-hub-endpoint' to designate a CIDER-SPY hub for sharing information
 between independent REPL sessions.
 The format is '(host port)."
   :type 'list
@@ -56,11 +56,14 @@ CIDER-SPY hub."
 When a response comes from nREPL relevant to the CIDER-SPY summary operation,
 the current buffer will be updated accordingly."
   (let ((buffer (current-buffer)))
-    (nrepl-send-request (list "op" "summary"
-                              "auto-refresh" (if cider-spy-auto-refresh "true" "false")
-                              "hub-host" (car cider-spy-hub-endpoint)
-                              "hub-port" (cadr cider-spy-hub-endpoint)
-                              "hub-alias" cider-spy-hub-alias)
+    (nrepl-send-request (append
+                         (list "op" "summary"
+                               "auto-refresh" (if cider-spy-auto-refresh "true" "false"))
+                         (when cider-spy-hub-endpoint
+                           (list "hub-host" (car cider-spy-hub-endpoint)
+                                 "hub-port" (number-to-string (cadr cider-spy-hub-endpoint))))
+                         (when cider-spy-hub-alias
+                           (list "hub-alias" cider-spy-hub-alias)))
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)
