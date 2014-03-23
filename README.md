@@ -16,6 +16,7 @@ To help developers and teams share information about development flows.
 * Functions run most often outside of immediate namespace
 * Functions run that fail most often
 * Time Fns: https://github.com/clojure-emacs/cider/issues/477.
+* Keep ref to last REPL eval (saves deffing)
 
 ## Abstract Directions
 

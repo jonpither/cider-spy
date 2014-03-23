@@ -31,6 +31,19 @@ will appear automatically in the CIDER SPY buffer."
   :type 'boolean
   :group 'cider-spy)
 
+(defcustom cider-spy-hub-endpoint t
+  "Set `cider-spy-endpoint' to designate a CIDER-SPY hub for sharing information
+between independent REPL sessions.
+The format is '(host port)."
+  :type 'list
+  :group 'cider-spy)
+
+(defcustom cider-spy-hub-alias t
+  "Set `cider-spy-hub-alias' for a handle to identify REPL session owner in the
+CIDER-SPY hub."
+  :type 'string
+  :group 'cider-spy)
+
 (defun cider-spy-refresh-buffer (buffer str)
   "Emit into the cider spy popup buffer, wiping it first."
   (with-current-buffer buffer
@@ -43,9 +56,11 @@ will appear automatically in the CIDER SPY buffer."
 When a response comes from nREPL relevant to the CIDER-SPY summary operation,
 the current buffer will be updated accordingly."
   (let ((buffer (current-buffer)))
-    (nrepl-send-request (list "op" "summary" "auto-refresh"
-                              ;; TODO do below properly in elisp
-                              (if cider-spy-auto-refresh "true" "false"))
+    (nrepl-send-request (list "op" "summary"
+                              "auto-refresh" (if cider-spy-auto-refresh "true" "false")
+                              "hub-host" (car cider-spy-hub-endpoint)
+                              "hub-port" (cadr cider-spy-hub-endpoint)
+                              "hub-alias" cider-spy-hub-alias)
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)
@@ -81,5 +96,3 @@ the current buffer will be updated accordingly."
                           ("Your files loaded:" . font-lock-function-name-face)))
 
 (provide 'cider-spy)
-
-;; (setq cider-spy-auto-refresh t)
