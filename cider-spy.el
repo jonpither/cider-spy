@@ -58,6 +58,7 @@ the current buffer will be updated accordingly."
   (let ((buffer (current-buffer)))
     (nrepl-send-request (append
                          (list "op" "summary"
+                               "session" (nrepl-current-session)
                                "auto-refresh" (if cider-spy-auto-refresh "true" "false"))
                          (when cider-spy-hub-endpoint
                            (list "hub-host" (car cider-spy-hub-endpoint)
