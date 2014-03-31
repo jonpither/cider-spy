@@ -9,8 +9,19 @@ Spy on CIDER nREPL sessions. Depends on [cider-spy-nrepl](https://github.com/jon
 
 To help developers and teams share information about development flows.
 
+## Changing direction
+
+This originally started life as a tool to help users learn about their own REPL behavour, and to function as an uber smart project navigation tool.
+
+Since then it's morphed into being a tool to help developers share information. I.e. to ping code to each other and see where colleagues are.
+
 ## TODOS
 
+* Right now summary is refreshed all the time - I should make a better process of firing off deltas (i.e. registrations). Perhaps I should start by having a dedicated 'flash message' section of the spy buffer.
+* Connected repl sessions - i.e. send someone some code
+* Dev x has been on this file.. etc etc.
+* Popup some code in a buffer on another devs emacs
+* Where is everyone right now? (project specific)
 * Split out an interaction file.
 * Do a ping
 * Remove junk from function calls if possible
@@ -20,21 +31,7 @@ To help developers and teams share information about development flows.
 * Functions run that fail most often
 * Time Fns: https://github.com/clojure-emacs/cider/issues/477.
 * Keep ref to last REPL eval (saves deffing)
-
-## Abstract Directions
-
-* Could actually be useful as a "learnt" project navigation tool
-* I spent x amount of time in this namespace today
-* track a users journey
-
-## Ver 2
-
-### Connected REPL sessions
-
-* Connected repl sessions - i.e. send someone some code
-* Dev x has been on this file.. etc etc.
-* Popup some code in a buffer on another devs emacs
-* Where is everyone right now? (project specific)
+* REPL Summary: I spent x amount of time in this namespace today
 
 # License
 
