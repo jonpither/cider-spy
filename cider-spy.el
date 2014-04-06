@@ -67,7 +67,7 @@ CIDER-SPY hub."
     (let ((buffer (cider-popup-buffer "*cider spy hub*" t)))
       (cider-emit-into-popup-buffer buffer "CIDER SPY asked CIDER-SPY-NREPL to connect to CIDER SPY HUB...")
       (nrepl-send-request
-       (append (list "op" "spy-hub-connect"
+       (append (list "op" "cider-spy-hub-connect"
                      "session" (nrepl-current-session)
                      "hub-host" (car cider-spy-hub-endpoint)
                      "hub-port" (number-to-string (cadr cider-spy-hub-endpoint)))
@@ -87,7 +87,7 @@ CIDER-SPY hub."
 When a response comes from nREPL relevant to the CIDER-SPY summary operation,
 the current buffer will be updated accordingly."
   (let ((buffer (current-buffer)))
-    (nrepl-send-request (list "op" "summary"
+    (nrepl-send-request (list "op" "cider-spy-summary"
                               "session" (nrepl-current-session)
                               "auto-refresh" (if cider-spy-auto-refresh "true" "false"))
                         (nrepl-make-response-handler
