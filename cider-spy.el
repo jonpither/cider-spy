@@ -51,20 +51,45 @@ CIDER-SPY hub."
       (erase-buffer)))
   (cider-emit-into-popup-buffer buffer str))
 
+;; Current thinking (with kids in a coffee shop, never a good time_
+;;  CIDER-SPY in emacs should control hub connection behavour.
+;;  This way it's more transparent and configurable, and less complex
+;;  It also makes cider-nrepl-server dumber.
+;;  I'll need to handle the user bombarding the server with connection requests,
+;;  perhaps only ensure one is in progress at any one time..
+;;  One ideas is that server keeps trying if this connect-command is run.
+;;  TODO - probably not a popup buffer, more of a background buffer
+;;  TODO - test the error handling - be quite nice to report mal-connection there
+
+(defun cider-spy-connect-to-hub ()
+  "Connect to the CIDER-SPY-HUB"
+  (when cider-spy-hub-endpoint
+    (let ((buffer (cider-popup-buffer "*cider spy hub*" t)))
+      (cider-emit-into-popup-buffer buffer "CIDER SPY asked CIDER-SPY-NREPL to connect to CIDER SPY HUB...")
+      (nrepl-send-request
+       (append (list "op" "spy-hub-connect"
+                     "session" (nrepl-current-session)
+                     "hub-host" (car cider-spy-hub-endpoint)
+                     "hub-port" (number-to-string (cadr cider-spy-hub-endpoint)))
+               (when cider-spy-hub-alias
+                 (list "hub-alias" cider-spy-hub-alias)))
+       (nrepl-make-response-handler
+        buffer
+        (lambda (buffer str)
+          (cider-emit-into-popup-buffer buffer (concat "\n" str)))
+        '()
+        (lambda (buffer _str)
+          (cider-emit-into-popup-buffer "Oops"))
+        '())))))
+
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
 When a response comes from nREPL relevant to the CIDER-SPY summary operation,
 the current buffer will be updated accordingly."
   (let ((buffer (current-buffer)))
-    (nrepl-send-request (append
-                         (list "op" "summary"
-                               "session" (nrepl-current-session)
-                               "auto-refresh" (if cider-spy-auto-refresh "true" "false"))
-                         (when cider-spy-hub-endpoint
-                           (list "hub-host" (car cider-spy-hub-endpoint)
-                                 "hub-port" (number-to-string (cadr cider-spy-hub-endpoint))))
-                         (when cider-spy-hub-alias
-                           (list "hub-alias" cider-spy-hub-alias)))
+    (nrepl-send-request (list "op" "summary"
+                              "session" (nrepl-current-session)
+                              "auto-refresh" (if cider-spy-auto-refresh "true" "false"))
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)
@@ -99,5 +124,8 @@ the current buffer will be updated accordingly."
                           ("Your function calls:" . font-lock-function-name-face)
                           ("Your files loaded:" . font-lock-function-name-face)
                           ("Devs hacking:" . font-lock-function-name-face)))
+
+;; (after-init-hook)?
+(add-hook 'cider-repl-mode-hook 'cider-spy-connect-to-hub)
 
 (provide 'cider-spy)
