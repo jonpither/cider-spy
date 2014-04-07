@@ -120,10 +120,8 @@ the current buffer will be updated accordingly."
 
 ;; TODO use a regexp
 (font-lock-add-keywords 'cider-spy-buffer-mode
-                        '(("Your namespace trail:" . font-lock-keyword-face)
-                          ("Your function calls:" . font-lock-function-name-face)
-                          ("Your files loaded:" . font-lock-function-name-face)
-                          ("Devs hacking:" . font-lock-function-name-face)))
+                        '(("Your .*:" . font-lock-function-name-face)
+                          ("Devs hacking:" . font-lock-keyword-face)))
 
 ;; (after-init-hook)?
 (add-hook 'cider-repl-mode-hook 'cider-spy-connect-to-hub)
