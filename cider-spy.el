@@ -106,9 +106,19 @@ the current buffer will be updated accordingly."
     (cider-spy-buffer-mode)
     (cider-spy-attach-nrepl-response-handler)))
 
+(defun cider-spy-reset ()
+  "Reset CIDER-SPY tracking used for *cider-spy* buffer."
+  (interactive)
+
+  (nrepl-send-request
+   (append (list "op" "cider-spy-reset"
+                 "session" (nrepl-current-session)))
+   nil))
+
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "g" 'cider-spy-summary)
+    (define-key map "r" 'cider-spy-reset)
     map))
 
 (define-derived-mode cider-spy-buffer-mode cider-popup-buffer-mode

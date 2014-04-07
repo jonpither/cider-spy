@@ -9,6 +9,13 @@ Spy on CIDER nREPL sessions. Depends on [cider-spy-nrepl](https://github.com/jon
 
 To help developers and teams share information about development flows.
 
+### cider-spy-mode
+
+Keyboard shortcut                    | Description
+-------------------------------------|-------------------------------
+<kbd>g</kbd>| Refresh the `*cider-spy*` buffer.
+<kbd>r</kbd>| Reset the tracking data underpinning the `*cider-spy*` buffer.
+
 ## Changing direction
 
 This originally started life as a tool to help users learn about their own REPL behavour, and to function as an uber smart project navigation tool.
