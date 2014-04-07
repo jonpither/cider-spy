@@ -32,7 +32,6 @@ Since then it's morphed into being a tool to help developers share information. 
 * Where is everyone right now? (project specific)
 * Refactor: Split out an interaction file.
 * Test: Do a ping
-* Ability to clear/reset the spy buffer
 * Namespaces/hunks should be links
 * Functions run most often outside of immediate namespace
 * Functions run that fail most often
