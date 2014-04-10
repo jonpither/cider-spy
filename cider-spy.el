@@ -24,6 +24,8 @@
 ;; This file is not part of GNU Emacs.
 
 (require 'cider-interaction)
+(require 'json)
+(require 'dash)
 
 (defcustom cider-spy-auto-refresh t
   "When `cider-spy-auto-refresh' is set to t, updates from the nREPL server
@@ -44,23 +46,73 @@ CIDER-SPY hub."
   :type 'string
   :group 'cider-spy)
 
+(defconst cider-spy-summary-sections
+  '((devs "Devs Hacking:" cider-spy-section-devs-hacking)
+    (session "Your Session:" cider-spy-section-session)
+    (nses-loaded "Your Namespaces Loaded:" cider-spy-section-nses-loaded)
+    (ns-trail "Your Namespace Trail:" cider-spy-section-ns-trail)
+;;    (fns "Your Function Calls:" identity)
+    )
+  "The CIDER-SPY summary sections used for presentation.")
+
+(defun cider-spy-section-devs-hacking (section-data)
+  "Display string for devs hacking."
+  (car (mapcar 'identity section-data)))
+
+(defun cider-spy-section-nses-loaded (section-data)
+  "Display string for namespaces loaded."
+  (setq foo section-data)
+  (mapconcat (lambda (ns-freq)
+               (format "%s (%s times)"
+                       (car ns-freq)
+                       (cdr ns-freq)))
+             section-data "\n  "))
+
+(defun cider-spy-section-ns-trail (section-data)
+  "Display string for namespace trail."
+  (mapconcat (lambda (m)
+               (format "%s (%s)"
+                       (cdr (assoc 'ns m))
+                       (let ((seconds (cdr (assoc 'seconds m))))
+                         (if seconds
+                             (format "%s seconds" seconds)
+                           "Am here"))))
+             section-data "\n  "))
+
+(defun cider-spy-section-session (section-data)
+  "Display info about session."
+  (format "Started %s, uptime: %s seconds."
+          (cdr (assoc 'started section-data))
+          (cdr (assoc 'seconds section-data))))
+
+;; todo indent-region?
+
+(defun cider-spy-insert-buffer-contents
+  (buffer spy-data)
+  "Insert SPY-DATA summary information into BUFFER."
+  (with-current-buffer buffer
+;;    (setq-local cider-spy-sections '())
+    (dolist (section-def cider-spy-summary-sections)
+      (let ((section (assoc (car section-def) spy-data)))
+        (when (> (point) 1)
+          (insert-string "\n"))
+        (when section
+          (insert-string
+           (format "%s\n  %s\n"
+                   (cadr section-def)
+                   (funcall (cadr (cdr section-def))
+                            (cdr section)))))))))
+
 (defun cider-spy-refresh-buffer (buffer str)
-  "Emit into the cider spy popup buffer, wiping it first."
+  "Update the cider spy popup buffer, wiping it first."
   (with-current-buffer buffer
     (let ((inhibit-read-only t))
-      (erase-buffer)))
-  (cider-emit-into-popup-buffer buffer str))
+      (erase-buffer)
+      (cider-spy-insert-buffer-contents
+       buffer (json-read-from-string str))
+      (font-lock-fontify-buffer))))
 
-;; Current thinking (with kids in a coffee shop, never a good time_
-;;  CIDER-SPY in emacs should control hub connection behavour.
-;;  This way it's more transparent and configurable, and less complex
-;;  It also makes cider-nrepl-server dumber.
-;;  I'll need to handle the user bombarding the server with connection requests,
-;;  perhaps only ensure one is in progress at any one time..
-;;  One ideas is that server keeps trying if this connect-command is run.
-;;  TODO - probably not a popup buffer, more of a background buffer
-;;  TODO - test the error handling - be quite nice to report mal-connection there
-
+;; TODO check indent-sexp, maybe I don't have to manually indent like I am
 (defun cider-spy-connect-to-hub ()
   "Connect to the CIDER-SPY-HUB"
   (when cider-spy-hub-endpoint
@@ -131,7 +183,7 @@ the current buffer will be updated accordingly."
 ;; TODO use a regexp
 (font-lock-add-keywords 'cider-spy-buffer-mode
                         '(("Your .*:" . font-lock-function-name-face)
-                          ("Devs hacking:" . font-lock-keyword-face)))
+                          ("Devs Hacking:" . font-lock-keyword-face)))
 
 ;; (after-init-hook)?
 (add-hook 'cider-repl-mode-hook 'cider-spy-connect-to-hub)
