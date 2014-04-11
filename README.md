@@ -27,7 +27,7 @@ Since then it's morphed into being a tool to help developers share information. 
 
 ## TODOS
 
-* There does need to be a way for turning it off for a project.. I.e. I don't want my private proj stuff showing up on CIDER SPY
+* Integrate with travis.. follow CIDER
 * Right now summary is refreshed all the time - I should make a better process of firing off deltas (i.e. registrations). Perhaps I should start by having a dedicated 'flash message' section of the spy buffer.
 * Connected repl sessions - i.e. send someone some code
 * Dev x has been on this file.. etc etc.
