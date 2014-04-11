@@ -224,12 +224,11 @@ the current buffer will be updated accordingly."
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map t)
-    (define-key map "g" 'cider-spy-summary)
-    (define-key map "r" 'cider-spy-reset)
-    (define-key map "n" 'cider-spy-next-section)
-    (define-key map "p" 'cider-spy-previous-section)
-    (define-key map "TAB" 'cider-spy-toggle-section-hidden)
-    (define-key map "t" 'cider-spy-toggle-section-hidden)
+    (define-key map (kbd "g") 'cider-spy-summary)
+    (define-key map (kbd "r") 'cider-spy-reset)
+    (define-key map (kbd "n") 'cider-spy-next-section)
+    (define-key map (kbd "p") 'cider-spy-previous-section)
+    (define-key map (kbd "TAB") 'cider-spy-toggle-section-hidden)
     map))
 
 (define-derived-mode cider-spy-buffer-mode cider-popup-buffer-mode
