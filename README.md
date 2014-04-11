@@ -15,6 +15,8 @@ Keyboard shortcut                    | Description
 -------------------------------------|-------------------------------
 <kbd>g</kbd>| Refresh the `*cider-spy*` buffer.
 <kbd>r</kbd>| Reset the tracking data underpinning the `*cider-spy*` buffer.
+<kbd>n</kbd>| Goto to next section.
+<kbd>p</kbd>| Goto to previous section.
 
 ## Changing direction
 

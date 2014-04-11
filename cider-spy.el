@@ -87,21 +87,53 @@ CIDER-SPY hub."
 
 ;; todo indent-region?
 
+(defvar-local cider-spy-sections nil
+  "CIDER SPY sections in the *CIDER-SPY-BUFFER*")
+
+(cl-defstruct cider-spy-section
+  beginning)
+
 (defun cider-spy-insert-buffer-contents
   (buffer spy-data)
-  "Insert SPY-DATA summary information into BUFFER."
+  "Insert SPY-DATA summary information into BUFFER.
+   We reset cider-spy-sections, and add sections as children."
   (with-current-buffer buffer
-;;    (setq-local cider-spy-sections '())
+    (setq cider-spy-sections '())
     (dolist (section-def cider-spy-summary-sections)
       (let ((section (assoc (car section-def) spy-data)))
         (when (> (point) 1)
           (insert-string "\n"))
         (when section
-          (insert-string
-           (format "%s\n  %s\n"
-                   (cadr section-def)
-                   (funcall (cadr (cdr section-def))
-                            (cdr section)))))))))
+          (let ((spy-section (make-cider-spy-section
+                              :beginning (point))))
+            (insert-string
+             (format "%s\n  %s\n"
+                     (cadr section-def)
+                     (funcall (cadr (cdr section-def))
+                              (cdr section))))
+            (setf cider-spy-sections
+                  (nconc cider-spy-sections (list spy-section))))
+          )))))
+
+(defun cider-spy-next-section ()
+  (interactive)
+  (with-current-buffer (get-buffer "*cider spy*")
+    (let ((next-s (car (-filter (lambda (s)
+                                  (> (cider-spy-section-beginning s)
+                                     (point)))
+                                cider-spy-sections))))
+      (when next-s
+        (goto-char (cider-spy-section-beginning next-s))))))
+
+(defun cider-spy-previous-section ()
+  (interactive)
+  (with-current-buffer (get-buffer "*cider spy*")
+    (let ((next-s (car (-filter (lambda (s)
+                                  (< (cider-spy-section-beginning s)
+                                     (point)))
+                                (reverse cider-spy-sections)))))
+      (when next-s
+        (goto-char (cider-spy-section-beginning next-s))))))
 
 (defun cider-spy-refresh-buffer (buffer str)
   "Update the cider spy popup buffer, wiping it first."
@@ -171,6 +203,8 @@ the current buffer will be updated accordingly."
   (let ((map (make-sparse-keymap)))
     (define-key map "g" 'cider-spy-summary)
     (define-key map "r" 'cider-spy-reset)
+    (define-key map "n" 'cider-spy-next-section)
+    (define-key map "p" 'cider-spy-previous-section)
     map))
 
 (define-derived-mode cider-spy-buffer-mode cider-popup-buffer-mode
