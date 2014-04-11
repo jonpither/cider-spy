@@ -91,7 +91,7 @@ CIDER-SPY hub."
   "CIDER SPY sections in the *CIDER-SPY-BUFFER*")
 
 (cl-defstruct cider-spy-section
-  beginning end)
+  beginning end hidden)
 
 (defun cider-spy-insert-buffer-contents
   (buffer spy-data)
@@ -145,7 +145,9 @@ CIDER-SPY hub."
 (defun cider-spy-toggle-section-hidden ()
   "Hide everything after the first line of a section."
   (interactive)
-  (let ((section (cider-spy-find-section-at-point)))
+  (let* ((section (cider-spy-find-section-at-point))
+         (hidden (not (cider-spy-section-hidden section))))
+    (setf (cider-spy-section-hidden section) hidden)
     (let ((inhibit-read-only t)
           (beg (save-excursion
                  (goto-char (cider-spy-section-beginning section))
@@ -153,7 +155,7 @@ CIDER-SPY hub."
                  (point)))
           (end (cider-spy-section-end section)))
       (when (< beg end)
-        (put-text-property beg end 'invisible t)))))
+        (put-text-property beg end 'invisible hidden)))))
 
 (defun cider-spy-refresh-buffer (buffer str)
   "Update the cider spy popup buffer, wiping it first."
