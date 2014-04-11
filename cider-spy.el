@@ -51,9 +51,16 @@ CIDER-SPY hub."
     (session "Your Session:" cider-spy-section-session)
     (nses-loaded "Your Namespaces Loaded:" cider-spy-section-nses-loaded)
     (ns-trail "Your Namespace Trail:" cider-spy-section-ns-trail)
-;;    (fns "Your Function Calls:" identity)
-    )
+    (fns "Your Function Calls:" cider-spy-section-functions-executed))
   "The CIDER-SPY summary sections used for presentation.")
+
+(defun cider-spy-section-functions-executed (section-data)
+  "Display string for namespaces loaded."
+  (mapconcat (lambda (ns-freq)
+               (format "%s (%s times)"
+                       (car ns-freq)
+                       (cdr ns-freq)))
+             section-data "\n  "))
 
 (defun cider-spy-section-devs-hacking (section-data)
   "Display string for devs hacking."
