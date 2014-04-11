@@ -91,7 +91,7 @@ CIDER-SPY hub."
   "CIDER SPY sections in the *CIDER-SPY-BUFFER*")
 
 (cl-defstruct cider-spy-section
-  beginning)
+  beginning end)
 
 (defun cider-spy-insert-buffer-contents
   (buffer spy-data)
@@ -111,9 +111,9 @@ CIDER-SPY hub."
                      (cadr section-def)
                      (funcall (cadr (cdr section-def))
                               (cdr section))))
+            (setf (cider-spy-section-end spy-section) (point-marker))
             (setf cider-spy-sections
-                  (nconc cider-spy-sections (list spy-section))))
-          )))))
+                  (nconc cider-spy-sections (list spy-section)))))))))
 
 (defun cider-spy-next-section ()
   (interactive)
@@ -134,6 +134,26 @@ CIDER-SPY hub."
                                 (reverse cider-spy-sections)))))
       (when next-s
         (goto-char (cider-spy-section-beginning next-s))))))
+
+(defun cider-spy-find-section-at-point ()
+  "Find the CIDER-SPY secton at point."
+  (car (-filter (lambda (s)
+                  (= (cider-spy-section-beginning s)
+                     (point)))
+                cider-spy-sections)))
+
+(defun cider-spy-toggle-section-hidden ()
+  "Hide everything after the first line of a section."
+  (interactive)
+  (let ((section (cider-spy-find-section-at-point)))
+    (let ((inhibit-read-only t)
+          (beg (save-excursion
+                 (goto-char (cider-spy-section-beginning section))
+                 (forward-line)
+                 (point)))
+          (end (cider-spy-section-end section)))
+      (when (< beg end)
+        (put-text-property beg end 'invisible t)))))
 
 (defun cider-spy-refresh-buffer (buffer str)
   "Update the cider spy popup buffer, wiping it first."
@@ -201,10 +221,13 @@ the current buffer will be updated accordingly."
 
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
+    (suppress-keymap map t)
     (define-key map "g" 'cider-spy-summary)
     (define-key map "r" 'cider-spy-reset)
     (define-key map "n" 'cider-spy-next-section)
     (define-key map "p" 'cider-spy-previous-section)
+    (define-key map "TAB" 'cider-spy-toggle-section-hidden)
+    (define-key map "t" 'cider-spy-toggle-section-hidden)
     map))
 
 (define-derived-mode cider-spy-buffer-mode cider-popup-buffer-mode

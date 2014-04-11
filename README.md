@@ -17,6 +17,7 @@ Keyboard shortcut                    | Description
 <kbd>r</kbd>| Reset the tracking data underpinning the `*cider-spy*` buffer.
 <kbd>n</kbd>| Goto to next section.
 <kbd>p</kbd>| Goto to previous section.
+<kbd>t</kbd>| Toggle section visibility.
 
 ## Changing direction
 
@@ -26,6 +27,7 @@ Since then it's morphed into being a tool to help developers share information. 
 
 ## TODOS
 
+* FIX toggle and make TAB work.
 * There does need to be a way for turning it off for a project.. I.e. I don't want my private proj stuff showing up on CIDER SPY
 * Right now summary is refreshed all the time - I should make a better process of firing off deltas (i.e. registrations). Perhaps I should start by having a dedicated 'flash message' section of the spy buffer.
 * Connected repl sessions - i.e. send someone some code
