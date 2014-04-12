@@ -33,6 +33,27 @@
 
 ;; whack this JSON in and check the buffer after for various sections.
 ;;{"ns-trail":[{"ns":"proja.core"}],"nses-loaded":{"proja.core":1},"fns":null,"devs":["Awesomedude"],"session":{"started":"08:59:34","seconds":21}}
+;;
+
+(defun cider-spy-test-grab-section (buffer k)
+  (with-current-buffer buffer
+    (car (-filter (lambda (section) (eq k (cider-spy-section-type section)))
+                  cider-spy-sections))))
+
+(defun cider-spy-test-grab-section-as-string (buffer k)
+  (with-current-buffer buffer
+    (let ((section (cider-spy-test-grab-section (current-buffer) k)))
+      (buffer-substring-no-properties (cider-spy-section-beginning section)
+                                      (- (cider-spy-section-end section) 1)))))
 
 (ert-deftest test-foo ()
-  (should t))
+  (with-temp-buffer
+    (cider-spy-refresh-buffer
+     (current-buffer)
+     "{\"ns-trail\":[{\"ns\":\"proja.core\"}],\"nses-loaded\":{\"proja.core\":1},\"fns\":null,\"devs\":[\"Awesomedude\"],\"session\":{\"started\":\"08:59:34\",\"seconds\":21}}")
+
+    (let ((devs-section (cider-spy-test-grab-section (current-buffer) 'devs)))
+      (message (buffer-substring (cider-spy-section-beginning devs-section)
+                                 (- (cider-spy-section-end devs-section) 1)))
+      (should (equal "Devs Hacking:\n  Awesomedude"
+                     (cider-spy-test-grab-section-as-string (current-buffer) 'devs))))))

@@ -98,7 +98,7 @@ CIDER-SPY hub."
   "CIDER SPY sections in the *CIDER-SPY-BUFFER*")
 
 (cl-defstruct cider-spy-section
-  beginning end hidden)
+  type beginning end hidden)
 
 (defun cider-spy-insert-buffer-contents
   (buffer spy-data)
@@ -112,7 +112,8 @@ CIDER-SPY hub."
           (insert-string "\n"))
         (when section
           (let ((spy-section (make-cider-spy-section
-                              :beginning (point))))
+                              :beginning (point)
+                              :type (car section-def))))
             (insert-string
              (format "%s\n  %s\n"
                      (cadr section-def)
@@ -121,6 +122,15 @@ CIDER-SPY hub."
             (setf (cider-spy-section-end spy-section) (point-marker))
             (setf cider-spy-sections
                   (nconc cider-spy-sections (list spy-section)))))))))
+
+(defun cider-spy-refresh-buffer (buffer str)
+  "Update the cider spy popup buffer, wiping it first."
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (cider-spy-insert-buffer-contents
+       buffer (json-read-from-string str))
+      (font-lock-fontify-buffer))))
 
 (defun cider-spy-next-section ()
   (interactive)
@@ -163,15 +173,6 @@ CIDER-SPY hub."
           (end (cider-spy-section-end section)))
       (when (< beg end)
         (put-text-property beg end 'invisible hidden)))))
-
-(defun cider-spy-refresh-buffer (buffer str)
-  "Update the cider spy popup buffer, wiping it first."
-  (with-current-buffer buffer
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (cider-spy-insert-buffer-contents
-       buffer (json-read-from-string str))
-      (font-lock-fontify-buffer))))
 
 ;; TODO check indent-sexp, maybe I don't have to manually indent like I am
 (defun cider-spy-connect-to-hub ()
