@@ -63,8 +63,8 @@
 
 (ert-deftest test-fns-section ()
   (with-temp-buffer
-    (cider-spy-refresh-buffer (current-buffer) "{\"fns\":{\"clojure.core/println\":1, \"clojure.core/str\":2}}")
-    (should (equal "Your Function Calls:\n  clojure.core/str (2 times)\n  clojure.core/println (1 times)"
+    (cider-spy-refresh-buffer (current-buffer) "{\"fns\":{\"clojure.core/println\":2, \"clojure.core/str\":1}}")
+    (should (equal "Your Function Calls:\n  clojure.core/println (2 times)\n  clojure.core/str (1 times)"
                    (cider-spy-test-grab-section-as-string (current-buffer) 'fns)))))
 
 (ert-deftest test-session-section ()

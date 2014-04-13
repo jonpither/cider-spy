@@ -43,31 +43,23 @@ CIDER-SPY hub."
 (defconst cider-spy-summary-sections
   '((devs "Devs Hacking:" cider-spy-section-devs-hacking)
     (session "Your Session:" cider-spy-section-session)
-    (nses-loaded "Your Namespaces Loaded:" cider-spy-section-nses-loaded)
+    (nses-loaded "Your Namespaces Loaded:" cider-spy-section-frequency)
     (ns-trail "Your Namespace Trail:" cider-spy-section-ns-trail)
-    (fns "Your Function Calls:" cider-spy-section-functions-executed))
+    (fns "Your Function Calls:" cider-spy-section-frequency))
   "The CIDER-SPY summary sections used for presentation.")
 
-(defun cider-spy-section-functions-executed (section-data)
-  "Display string for namespaces loaded."
-  (mapconcat (lambda (ns-freq)
-               (format "%s (%s times)"
-                       (car ns-freq)
-                       (cdr ns-freq)))
-             section-data "\n  "))
+(defun cider-spy-section-frequency (section-data)
+  "Display frequency metric.
+   Expects a list of pairs, the second of which is the metric value."
+  (mapconcat (lambda (v)
+               (format "%s (%s times)" (car v) (cdr v)))
+             (-sort (lambda (v1 v2)
+                      (> (cdr v1) (cdr v2))) section-data)
+             "\n  "))
 
 (defun cider-spy-section-devs-hacking (section-data)
   "Display string for devs hacking."
   (car (mapcar 'identity section-data)))
-
-(defun cider-spy-section-nses-loaded (section-data)
-  "Display string for namespaces loaded."
-  (setq foo section-data)
-  (mapconcat (lambda (ns-freq)
-               (format "%s (%s times)"
-                       (car ns-freq)
-                       (cdr ns-freq)))
-             section-data "\n  "))
 
 (defun cider-spy-section-ns-trail (section-data)
   "Display string for namespace trail."
