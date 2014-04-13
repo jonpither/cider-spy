@@ -27,12 +27,6 @@
 (require 'json)
 (require 'dash)
 
-(defcustom cider-spy-auto-refresh t
-  "When `cider-spy-auto-refresh' is set to t, updates from the nREPL server
-will appear automatically in the CIDER SPY buffer."
-  :type 'boolean
-  :group 'cider-spy)
-
 (defcustom cider-spy-hub-endpoint t
   "Set `cider-spy-hub-endpoint' to designate a CIDER-SPY hub for sharing information
 between independent REPL sessions.
@@ -202,8 +196,7 @@ When a response comes from nREPL relevant to the CIDER-SPY summary operation,
 the current buffer will be updated accordingly."
   (let ((buffer (current-buffer)))
     (nrepl-send-request (list "op" "cider-spy-summary"
-                              "session" (nrepl-current-session)
-                              "auto-refresh" (if cider-spy-auto-refresh "true" "false"))
+                              "session" (nrepl-current-session))
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)

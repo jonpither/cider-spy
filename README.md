@@ -3,11 +3,40 @@ RIGHT NOW IT'S GROSSLY UNSTABLE - COME BACK SOON!
 
 # CIDER Spy
 
-Spy on CIDER nREPL sessions. Depends on [cider-spy-nrepl](https://github.com/jonpither/cider-spy-nrepl) where most of the development is happening.
+Spy on CIDER nREPL sessions and help developers and teams share information, send code snippets to each other etc.
 
-## Purpose
+# Installation
 
-To help developers and teams share information about development flows.
+## Prerequisites
+
+You need the [`CIDER-SPY-NREPL`](https://github.com/jonpither/cider-spy-nrepl) middleware. See installation instructions there. `CIDER-SPY` also depends on [`CIDER`](https://github.com/clojure-emacs/cider).
+
+If you want the developer interactivity behavours, then you need a run a `CIDER-SPY-HUB`. See the middleware documentation for how to set one up. It's trivial enough.
+
+## Configuration
+
+You can certainly use `CIDER-SPY` without configuring it any further
+to get summary information about your own REPL session. But configuration
+is needed if you want to connect to a `CIDER-SPY-HUB` to interact with your
+colleagues.
+
+### Basic configuration
+
+* Set `cider-spy-hub-endpoint` to where the `CIDER-SPY-HUB` is running.
+
+```el
+(setq cider-spy-hub-endpoint '("localhost" 7771)
+```
+
+* Give yourself an alias on the hub.
+
+```el
+(setq cider-spy-hub-alias "my-alias")
+```
+
+
+
+# Keyboard Shortcuts
 
 ### cider-spy-mode
 
@@ -19,7 +48,7 @@ Keyboard shortcut                    | Description
 <kbd>p</kbd>| Goto to previous section.
 <kbd>TAB</kbd>| Toggle section visibility.
 
-## Changing direction
+# Background
 
 This originally started life as a tool to help users learn about their own REPL behavour, and to function as an uber smart project navigation tool.
 
