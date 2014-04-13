@@ -56,6 +56,7 @@ Since then it's morphed into being a tool to help developers share information. 
 
 ## TODOS
 
+* Document credits in official way. Magnars because I used a lot of `magit` patterns and `clj-refactor` build setup. bbatsov because he basically taught me Elisp via hacking on CIDER.
 * Integrate with travis.. follow CIDER
 * Right now summary is refreshed all the time - I should make a better process of firing off deltas (i.e. registrations). Perhaps I should start by having a dedicated 'flash message' section of the spy buffer.
 * Connected repl sessions - i.e. send someone some code

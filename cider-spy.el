@@ -1,4 +1,4 @@
-;;; cider-inspect.el --- Spy on CIDER to get info
+;;; cider-spy.el --- Spy on CIDER to get info
 
 ;; Copyright © 2014 Jon Pither
 
@@ -6,7 +6,7 @@
 ;; URL: http://www.github.com/jonpither/cider-spy
 ;; Version: 0.1.0
 ;; Keywords: languages, clojure, cider, nrepl
-;; Package-Requires: ((clojure-mode "2.0.0") (cider "0.5.0"))
+;; Package-Requires: ((cider "0.5.0"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by

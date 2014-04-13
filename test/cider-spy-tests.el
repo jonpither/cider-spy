@@ -2,7 +2,7 @@
 
 ;; Copyright © 2012-2014 Jon Pither
 
-;; Author: Tim King <jon.pither@gmail.com>
+;; Author: Jon Pither <jon.pither@gmail.com>
 
 ;; This file is NOT part of GNU Emacs.
 
