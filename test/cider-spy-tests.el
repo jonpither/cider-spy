@@ -31,10 +31,6 @@
 (require 'ert)
 (require 'cider-spy)
 
-;; whack this JSON in and check the buffer after for various sections.
-;;{"ns-trail":[{"ns":"proja.core"}],"nses-loaded":{"proja.core":1},"fns":null,"devs":["Awesomedude"],"session":{"started":"08:59:34","seconds":21}}
-;;
-
 (defun cider-spy-test-grab-section (buffer k)
   (with-current-buffer buffer
     (car (-filter (lambda (section) (eq k (cider-spy-section-type section)))
@@ -46,14 +42,33 @@
       (buffer-substring-no-properties (cider-spy-section-beginning section)
                                       (- (cider-spy-section-end section) 1)))))
 
-(ert-deftest test-foo ()
+(ert-deftest test-developers-hacking-section ()
   (with-temp-buffer
-    (cider-spy-refresh-buffer
-     (current-buffer)
-     "{\"ns-trail\":[{\"ns\":\"proja.core\"}],\"nses-loaded\":{\"proja.core\":1},\"fns\":null,\"devs\":[\"Awesomedude\"],\"session\":{\"started\":\"08:59:34\",\"seconds\":21}}")
+    (cider-spy-refresh-buffer (current-buffer) "{\"devs\":[\"Awesomedude\"]}")
 
-    (let ((devs-section (cider-spy-test-grab-section (current-buffer) 'devs)))
-      (message (buffer-substring (cider-spy-section-beginning devs-section)
-                                 (- (cider-spy-section-end devs-section) 1)))
-      (should (equal "Devs Hacking:\n  Awesomedude"
-                     (cider-spy-test-grab-section-as-string (current-buffer) 'devs))))))
+    (should (equal "Devs Hacking:\n  Awesomedude"
+                   (cider-spy-test-grab-section-as-string (current-buffer) 'devs)))))
+
+(ert-deftest test-ns-trail-section ()
+  (with-temp-buffer
+    (cider-spy-refresh-buffer (current-buffer) "{\"ns-trail\":[{\"ns\":\"proja.core\"},{\"ns\":\"proja.core2\", \"seconds\":100}]}")
+    (should (equal "Your Namespace Trail:\n  proja.core (Am here)\n  proja.core2 (100 seconds)"
+                   (cider-spy-test-grab-section-as-string (current-buffer) 'ns-trail)))))
+
+(ert-deftest test-nses-loaded-section ()
+  (with-temp-buffer
+    (cider-spy-refresh-buffer (current-buffer) "{\"nses-loaded\":{\"proja.corea\":1, \"proja.coreb\":2}}")
+    (should (equal "Your Namespaces Loaded:\n  proja.coreb (2 times)\n  proja.corea (1 times)"
+                   (cider-spy-test-grab-section-as-string (current-buffer) 'nses-loaded)))))
+
+(ert-deftest test-fns-section ()
+  (with-temp-buffer
+    (cider-spy-refresh-buffer (current-buffer) "{\"fns\":{\"clojure.core/println\":1, \"clojure.core/str\":2}}")
+    (should (equal "Your Function Calls:\n  clojure.core/str (2 times)\n  clojure.core/println (1 times)"
+                   (cider-spy-test-grab-section-as-string (current-buffer) 'fns)))))
+
+(ert-deftest test-session-section ()
+  (with-temp-buffer
+    (cider-spy-refresh-buffer (current-buffer) "{\"session\":{\"started\":\"08:59:34\",\"seconds\":21}}")
+    (should (equal "Your Session:\n  Started 08:59:34, uptime: 21 seconds."
+                   (cider-spy-test-grab-section-as-string (current-buffer) 'session)))))
