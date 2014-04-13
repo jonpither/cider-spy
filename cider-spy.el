@@ -238,3 +238,5 @@ the current buffer will be updated accordingly."
 (add-hook 'cider-repl-mode-hook 'cider-spy-connect-to-hub)
 
 (provide 'cider-spy)
+
+;;; cider-spy.el ends here
