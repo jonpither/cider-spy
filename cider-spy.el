@@ -40,37 +40,54 @@ CIDER-SPY hub."
   :type 'string
   :group 'cider-spy)
 
+(cl-defstruct cider-spy-section-def
+  type label extract-fn display-fn)
+
 (defconst cider-spy-summary-sections
-  '((devs "Devs Hacking:" cider-spy-section-devs-hacking)
-    (session "Your Session:" cider-spy-section-session)
-    (nses-loaded "Your Namespaces Loaded:" cider-spy-section-frequency)
-    (ns-trail "Your Namespace Trail:" cider-spy-section-ns-trail)
-    (fns "Your Function Calls:" cider-spy-section-frequency))
+  (list (make-cider-spy-section-def
+         :type 'devs
+         :label "Devs Hacking:"
+         :extract-fn 'identity
+         :display-fn 'identity)
+        (make-cider-spy-section-def
+         :type 'session
+         :label "Your Session:"
+         :extract-fn 'list
+         :display-fn 'cider-spy-section-session)
+        (make-cider-spy-section-def
+         :type 'nses-loaded
+         :label "Your Namespaces Loaded:"
+         :extract-fn 'cider-spy-section-extract-freqencies
+         :display-fn 'cider-spy-section-frequency)
+        (make-cider-spy-section-def
+         :type 'ns-trail
+         :label "Your Namespace Trail:"
+         :extract-fn 'identity
+         :display-fn 'cider-spy-section-ns-trail)
+        (make-cider-spy-section-def
+         :type 'fns
+         :label "Your Function Calls:"
+         :extract-fn 'cider-spy-section-extract-freqencies
+         :display-fn 'cider-spy-section-frequency))
   "The CIDER-SPY summary sections used for presentation.")
 
-(defun cider-spy-section-frequency (section-data)
-  "Display frequency metric.
-   Expects a list of pairs, the second of which is the metric value."
-  (mapconcat (lambda (v)
-               (format "%s (%s times)" (car v) (cdr v)))
-             (-sort (lambda (v1 v2)
-                      (> (cdr v1) (cdr v2))) section-data)
-             "\n  "))
+(defun cider-spy-section-extract-freqencies (section-data)
+  "Expects a list of pairs, the second of which is the metric value."
+  (-sort (lambda (v1 v2)
+           (> (cdr v1) (cdr v2))) section-data))
 
-(defun cider-spy-section-devs-hacking (section-data)
-  "Display string for devs hacking."
-  (car (mapcar 'identity section-data)))
+(defun cider-spy-section-frequency (v)
+  "Display frequency metric."
+  (format "%s (%s times)" (car v) (cdr v)))
 
-(defun cider-spy-section-ns-trail (section-data)
+(defun cider-spy-section-ns-trail (m)
   "Display string for namespace trail."
-  (mapconcat (lambda (m)
-               (format "%s (%s)"
-                       (cdr (assoc 'ns m))
-                       (let ((seconds (cdr (assoc 'seconds m))))
-                         (if seconds
-                             (format "%s seconds" seconds)
-                           "Am here"))))
-             section-data "\n  "))
+  (format "%s (%s)"
+          (cdr (assoc 'ns m))
+          (let ((seconds (cdr (assoc 'seconds m))))
+            (if seconds
+                (format "%s seconds" seconds)
+              "Am here"))))
 
 (defun cider-spy-section-session (section-data)
   "Display info about session."
@@ -89,22 +106,23 @@ CIDER-SPY hub."
 (defun cider-spy-insert-buffer-contents
   (buffer spy-data)
   "Insert SPY-DATA summary information into BUFFER.
-   We reset cider-spy-sections, and add sections as children."
+   We reset cider-spy-sections and add sections as children."
   (with-current-buffer buffer
     (setq cider-spy-sections '())
     (dolist (section-def cider-spy-summary-sections)
-      (let ((section (assoc (car section-def) spy-data)))
+      (let ((section (assoc (cider-spy-section-def-type section-def) spy-data)))
         (when (> (point) 1)
           (insert-string "\n"))
         (when section
           (let ((spy-section (make-cider-spy-section
                               :beginning (point)
-                              :type (car section-def))))
+                              :type (cider-spy-section-def-type section-def))))
             (insert-string
              (format "%s\n  %s\n"
-                     (cadr section-def)
-                     (funcall (cadr (cdr section-def))
-                              (cdr section))))
+                     (cider-spy-section-def-label section-def)
+                     (mapconcat (cider-spy-section-def-display-fn section-def)
+                                (funcall (cider-spy-section-def-extract-fn section-def)
+                                         (cdr section)) "\n  ")))
             (setf (cider-spy-section-end spy-section) (point-marker))
             (setf cider-spy-sections
                   (nconc cider-spy-sections (list spy-section)))))))))
