@@ -127,9 +127,7 @@ CIDER-SPY hub."
    We reset cider-spy-sections and add sections as children."
   (with-current-buffer buffer
     (setq cider-spy-root-section (make-cider-spy-section
-                                  :beginning (point)
                                   :type 'root))
-    (setq fo cider-spy-root-section)
     (dolist (section-def cider-spy-summary-sections)
       (let ((section (assoc (cider-spy-section-def-type section-def) spy-data)))
         (when (> (point) 1)
@@ -162,8 +160,9 @@ CIDER-SPY hub."
   (interactive)
   (with-current-buffer (get-buffer "*cider spy*")
     (let ((next-s (car (-filter (lambda (s)
-                                  (> (cider-spy-section-beginning s)
-                                     (point)))
+                                  (and (cider-spy-section-beginning s)
+                                       (> (cider-spy-section-beginning s)
+                                          (point))))
                                 (cider-spy-descendent-sections cider-spy-root-section)))))
       (when next-s
         (goto-char (cider-spy-section-beginning next-s))))))
@@ -172,8 +171,9 @@ CIDER-SPY hub."
   (interactive)
   (with-current-buffer (get-buffer "*cider spy*")
     (let ((next-s (car (-filter (lambda (s)
-                                  (< (cider-spy-section-beginning s)
-                                     (point)))
+                                  (and (cider-spy-section-beginning s)
+                                       (< (cider-spy-section-beginning s)
+                                          (point))))
                                 (reverse (cider-spy-descendent-sections cider-spy-root-section))))))
       (when next-s
         (goto-char (cider-spy-section-beginning next-s))))))
@@ -181,25 +181,26 @@ CIDER-SPY hub."
 (defun cider-spy-find-section-at-point ()
   "Find the CIDER-SPY secton at point."
   (car (-filter (lambda (s)
-                  (= (cider-spy-section-beginning s)
-                     (point)))
+                  (and (cider-spy-section-beginning s)
+                       (= (cider-spy-section-beginning s)
+                          (point))))
                 (cider-spy-descendent-sections cider-spy-root-section))))
 
 (defun cider-spy-toggle-section-hidden ()
   "Hide everything after the first line of a section."
   (interactive)
-  (let* ((section (cider-spy-find-section-at-point))
-         (hidden (not (cider-spy-section-hidden section))))
-    (message section)
-    (setf (cider-spy-section-hidden section) hidden)
-    (let ((inhibit-read-only t)
-          (beg (save-excursion
-                 (goto-char (cider-spy-section-beginning section))
-                 (forward-line)
-                 (point)))
-          (end (cider-spy-section-end section)))
-      (when (< beg end)
-        (put-text-property beg end 'invisible hidden)))))
+  (let* ((section (cider-spy-find-section-at-point)))
+    (when section
+      (let ((hidden (not (cider-spy-section-hidden section))))
+        (setf (cider-spy-section-hidden section) hidden)
+        (let ((inhibit-read-only t)
+              (beg (save-excursion
+                     (goto-char (cider-spy-section-beginning section))
+                     (forward-line)
+                     (point)))
+              (end (cider-spy-section-end section)))
+          (when (< beg end)
+            (put-text-property beg end 'invisible hidden)))))))
 
 ;; TODO check indent-sexp, maybe I don't have to manually indent like I am
 (defun cider-spy-connect-to-hub ()
