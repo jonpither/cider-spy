@@ -47,28 +47,27 @@ CIDER-SPY hub."
   (list (make-cider-spy-section-def
          :type 'devs
          :label "Devs Hacking:"
-         :extract-fn 'identity
-         :display-fn 'identity)
-        (make-cider-spy-section-def
-         :type 'session
-         :label "Your Session:"
-         :extract-fn 'list
-         :display-fn 'cider-spy-section-session)
+         :display-fn 'cider-spy-section-devs)
+        ;; (make-cider-spy-section-def
+        ;;  :type 'session
+        ;;  :label "Your Session:"
+        ;;  :extract-fn 'list
+        ;;  :display-fn 'cider-spy-section-session)
         (make-cider-spy-section-def
          :type 'nses-loaded
          :label "Your Namespaces Loaded:"
-         :extract-fn 'cider-spy-section-extract-freqencies
-         :display-fn 'cider-spy-section-frequency)
-        (make-cider-spy-section-def
-         :type 'ns-trail
-         :label "Your Namespace Trail:"
-         :extract-fn 'identity
-         :display-fn 'cider-spy-section-ns-trail)
-        (make-cider-spy-section-def
-         :type 'fns
-         :label "Your Function Calls:"
-         :extract-fn 'cider-spy-section-extract-freqencies
-         :display-fn 'cider-spy-section-frequency))
+         :display-fn 'cider-spy-section-nses-loaded)
+        ;; (make-cider-spy-section-def
+        ;;  :type 'ns-trail
+        ;;  :label "Your Namespace Trail:"
+        ;;  :extract-fn 'identity
+        ;;  :display-fn 'cider-spy-section-ns-trail)
+        ;; (make-cider-spy-section-def
+        ;;  :type 'fns
+        ;;  :label "Your Function Calls:"
+        ;;  :extract-fn 'cider-spy-section-extract-freqencies
+        ;;  :display-fn 'cider-spy-section-frequency)
+)
   "The CIDER-SPY summary sections used for presentation.")
 
 (defun cider-spy-section-extract-freqencies (section-data)
@@ -113,13 +112,18 @@ CIDER-SPY hub."
            (nconc (cider-spy-section-children ,parent)
                   (list spy-section)))))
 
-;; ;; Prototyping here.
-;; ;; get devs showing up fast as possible, before retrofitting the rest
-;; (defun cider-spy-section-devs (cider-spy-section)
-;;   (dolist (s (cdr section))
-;;     (insert-string "\n")
-;;     (cider-spy-with-section cider-spy-section 'dev
-;;                             (insert-string s))))
+(defun cider-spy-section-nses-loaded (cider-spy-section section-data)
+  (dolist (s (cider-spy-section-extract-freqencies section-data))
+    (insert-string "\n")
+    (cider-spy-with-section
+     cider-spy-section 'ns-loaded
+     (insert-string (cider-spy-section-frequency s)))))
+
+(defun cider-spy-section-devs (cider-spy-section section-data)
+  (dolist (s (mapcar 'identity section-data))
+    (insert-string "\n")
+    (cider-spy-with-section
+     cider-spy-section 'dev (insert-string s))))
 
 (defun cider-spy-insert-buffer-contents
   (buffer spy-data)
@@ -129,18 +133,20 @@ CIDER-SPY hub."
     (setq cider-spy-root-section (make-cider-spy-section
                                   :type 'root))
     (dolist (section-def cider-spy-summary-sections)
-      (let ((section (assoc (cider-spy-section-def-type section-def) spy-data)))
+      (let* ((section (assoc (cider-spy-section-def-type section-def) spy-data))
+             (section-data (and section (cdr section))))
         (when (> (point) 1)
-          (insert-string "\n"))
-        (when section
+          (insert-string "\n\n"))
+        (when section-data
           (cider-spy-with-section
            cider-spy-root-section (cider-spy-section-def-type section-def)
-           (insert-string
-            (format "%s\n  %s\n"
-                    (cider-spy-section-def-label section-def)
-                    (mapconcat (cider-spy-section-def-display-fn section-def)
-                               (funcall (cider-spy-section-def-extract-fn section-def)
-                                        (cdr section)) "\n  ")))))))))
+           (insert-string (cider-spy-section-def-label section-def))
+           (funcall (cider-spy-section-def-display-fn section-def)
+                    spy-section section-data)
+           (dolist (s (cider-spy-section-children spy-section))
+             (indent-region
+              (cider-spy-section-beginning s)
+              (cider-spy-section-end s) 2))))))))
 
 (defun cider-spy-refresh-buffer (buffer str)
   "Update the cider spy popup buffer, wiping it first."
