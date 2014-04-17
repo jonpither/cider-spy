@@ -72,3 +72,27 @@
     (cider-spy-refresh-buffer (current-buffer) "{\"session\":{\"started\":\"08:59:34\",\"seconds\":21}}")
     (should (equal "Your Session:\n  Started 08:59:34, uptime: 21 seconds."
                    (cider-spy-test-grab-section-as-string (current-buffer) 'session)))))
+
+(ert-deftest test-navigate-around-sections ()
+  (with-temp-buffer
+    (cider-spy-refresh-buffer (current-buffer)
+                              "{\"devs\":[\"Awesomedude\"],
+                              \"ns-trail\":[{\"ns\":\"proja.core\"}],
+                              \"nses-loaded\":{\"proja.corea\":1},
+                              \"fns\":{\"clojure.core/println\":2},
+                              \"session\":{\"started\":\"08:59:34\",\"seconds\":21}}")
+    (goto-char 1)
+
+    (cider-spy-next-section (current-buffer))
+    (should (eq 'session (cider-spy-section-type (cider-spy-find-section-at-point))))
+    (cider-spy-next-section (current-buffer))
+    (should (eq 'nses-loaded (cider-spy-section-type (cider-spy-find-section-at-point))))
+    (cider-spy-next-section (current-buffer))
+    (should (eq 'ns-trail (cider-spy-section-type (cider-spy-find-section-at-point))))
+
+    (cider-spy-previous-section (current-buffer))
+    (should (eq 'nses-loaded (cider-spy-section-type (cider-spy-find-section-at-point))))
+    (cider-spy-previous-section (current-buffer))
+    (should (eq 'session (cider-spy-section-type (cider-spy-find-section-at-point))))
+    (cider-spy-previous-section (current-buffer))
+    (should (eq 'devs (cider-spy-section-type (cider-spy-find-section-at-point))))))
