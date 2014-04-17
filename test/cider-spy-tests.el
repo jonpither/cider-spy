@@ -34,7 +34,7 @@
 (defun cider-spy-test-grab-section (buffer k)
   (with-current-buffer buffer
     (car (-filter (lambda (section) (eq k (cider-spy-section-type section)))
-                  cider-spy-sections))))
+                  (cider-spy-descendent-sections cider-spy-root-section)))))
 
 (defun cider-spy-test-grab-section-as-string (buffer k)
   (with-current-buffer buffer
