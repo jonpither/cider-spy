@@ -83,15 +83,6 @@ CIDER-SPY hub."
            (nconc (cider-spy-section-children ,parent)
                   (list spy-section)))))
 
-(defun cider-spy-section-extract-freqencies (section-data)
-  "Expects a list of pairs, the second of which is the metric value."
-  (-sort (lambda (v1 v2)
-           (> (cdr v1) (cdr v2))) section-data))
-
-(defun cider-spy-section-frequency (v)
-  "Display frequency metric."
-  (format "%s (%s times)" (car v) (cdr v)))
-
 (defun cider-spy-section-session (cider-spy-section section-data)
   "Display info about session."
   (insert-string
@@ -111,14 +102,29 @@ CIDER-SPY hub."
               (let ((seconds (cdr (assoc 'seconds m))))
                 (if seconds
                     (format "%s seconds" seconds)
-                  "Am here")))))))
+                  "Am here"))))
+     (indent-region
+      (cider-spy-section-beginning spy-section)
+      (max-char) 2))))
+
+(defun cider-spy-section-frequency (v)
+  "Display frequency metric."
+  (format "%s (%s times)" (car v) (cdr v)))
+
+(defun cider-spy-section-extract-freqencies (section-data)
+  "Expects a list of pairs, the second of which is the metric value."
+  (-sort (lambda (v1 v2)
+           (> (cdr v1) (cdr v2))) section-data))
 
 (defun cider-spy-section-frequencies (cider-spy-section section-data child-type)
   (dolist (s (cider-spy-section-extract-freqencies section-data))
     (insert-string "\n")
     (cider-spy-with-section
      cider-spy-section child-type
-     (insert-string (cider-spy-section-frequency s)))))
+     (insert-string (cider-spy-section-frequency s))
+     (indent-region
+      (cider-spy-section-beginning spy-section)
+      (max-char) 2))))
 
 (defun cider-spy-section-nses-loaded (cider-spy-section section-data)
   (cider-spy-section-frequencies cider-spy-section section-data 'ns-loaded))
@@ -130,7 +136,11 @@ CIDER-SPY hub."
   (dolist (s (mapcar 'identity section-data))
     (insert-string "\n")
     (cider-spy-with-section
-     cider-spy-section 'dev (insert-string s))))
+     cider-spy-section 'dev
+     (insert-string s)
+     (indent-region
+      (cider-spy-section-beginning spy-section)
+      (max-char) 2))))
 
 (defun cider-spy-insert-buffer-contents
   (buffer spy-data)
@@ -150,10 +160,6 @@ CIDER-SPY hub."
            (insert-string (cider-spy-section-def-label section-def))
            (funcall (cider-spy-section-def-display-fn section-def)
                     spy-section section-data)
-           (dolist (s (cider-spy-section-children spy-section))
-             (indent-region
-              (cider-spy-section-beginning s)
-              (cider-spy-section-end s) 2))
            (insert-string "\n")))))))
 
 (defun cider-spy-refresh-buffer (buffer str)
