@@ -143,7 +143,7 @@ CIDER-SPY hub."
       (let* ((section (assoc (cider-spy-section-def-type section-def) spy-data))
              (section-data (and section (cdr section))))
         (when (> (point) 1)
-          (insert-string "\n\n"))
+          (insert-string "\n"))
         (when section-data
           (cider-spy-with-section
            cider-spy-root-section (cider-spy-section-def-type section-def)
@@ -153,7 +153,8 @@ CIDER-SPY hub."
            (dolist (s (cider-spy-section-children spy-section))
              (indent-region
               (cider-spy-section-beginning s)
-              (cider-spy-section-end s) 2))))))))
+              (cider-spy-section-end s) 2))
+           (insert-string "\n")))))))
 
 (defun cider-spy-refresh-buffer (buffer str)
   "Update the cider spy popup buffer, wiping it first."
