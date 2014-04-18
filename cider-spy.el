@@ -48,53 +48,24 @@ CIDER-SPY hub."
          :type 'devs
          :label "Devs Hacking:"
          :display-fn 'cider-spy-section-devs)
-        ;; (make-cider-spy-section-def
-        ;;  :type 'session
-        ;;  :label "Your Session:"
-        ;;  :extract-fn 'list
-        ;;  :display-fn 'cider-spy-section-session)
+        (make-cider-spy-section-def
+         :type 'session
+         :label "Your Session:"
+         :extract-fn 'list
+         :display-fn 'cider-spy-section-session)
         (make-cider-spy-section-def
          :type 'nses-loaded
          :label "Your Namespaces Loaded:"
          :display-fn 'cider-spy-section-nses-loaded)
-        ;; (make-cider-spy-section-def
-        ;;  :type 'ns-trail
-        ;;  :label "Your Namespace Trail:"
-        ;;  :extract-fn 'identity
-        ;;  :display-fn 'cider-spy-section-ns-trail)
-        ;; (make-cider-spy-section-def
-        ;;  :type 'fns
-        ;;  :label "Your Function Calls:"
-        ;;  :extract-fn 'cider-spy-section-extract-freqencies
-        ;;  :display-fn 'cider-spy-section-frequency)
-)
+        (make-cider-spy-section-def
+         :type 'ns-trail
+         :label "Your Namespace Trail:"
+         :display-fn 'cider-spy-section-ns-trail)
+        (make-cider-spy-section-def
+         :type 'fns
+         :label "Your Function Calls:"
+         :display-fn 'cider-spy-section-fns))
   "The CIDER-SPY summary sections used for presentation.")
-
-(defun cider-spy-section-extract-freqencies (section-data)
-  "Expects a list of pairs, the second of which is the metric value."
-  (-sort (lambda (v1 v2)
-           (> (cdr v1) (cdr v2))) section-data))
-
-(defun cider-spy-section-frequency (v)
-  "Display frequency metric."
-  (format "%s (%s times)" (car v) (cdr v)))
-
-(defun cider-spy-section-ns-trail (m)
-  "Display string for namespace trail."
-  (format "%s (%s)"
-          (cdr (assoc 'ns m))
-          (let ((seconds (cdr (assoc 'seconds m))))
-            (if seconds
-                (format "%s seconds" seconds)
-              "Am here"))))
-
-(defun cider-spy-section-session (section-data)
-  "Display info about session."
-  (format "Started %s, uptime: %s seconds."
-          (cdr (assoc 'started section-data))
-          (cdr (assoc 'seconds section-data))))
-
-;; todo indent-region?
 
 (defvar-local cider-spy-root-section nil
   "CIDER SPY sections are a hierarchy in the *CIDER-SPY-BUFFER*")
@@ -112,12 +83,48 @@ CIDER-SPY hub."
            (nconc (cider-spy-section-children ,parent)
                   (list spy-section)))))
 
-(defun cider-spy-section-nses-loaded (cider-spy-section section-data)
+(defun cider-spy-section-extract-freqencies (section-data)
+  "Expects a list of pairs, the second of which is the metric value."
+  (-sort (lambda (v1 v2)
+           (> (cdr v1) (cdr v2))) section-data))
+
+(defun cider-spy-section-frequency (v)
+  "Display frequency metric."
+  (format "%s (%s times)" (car v) (cdr v)))
+
+(defun cider-spy-section-session (cider-spy-section section-data)
+  "Display info about session."
+  (insert-string
+   (format "\n  Started %s, uptime: %s seconds."
+           (cdr (assoc 'started section-data))
+           (cdr (assoc 'seconds section-data)))))
+
+(defun cider-spy-section-ns-trail (cider-spy-section section-data)
+  "Display string for namespace trail."
+  (dolist (m (mapcar 'identity section-data))
+    (insert-string "\n")
+    (cider-spy-with-section
+     cider-spy-section 'ns-breadcrumb
+     (insert-string
+      (format "%s (%s)"
+              (cdr (assoc 'ns m))
+              (let ((seconds (cdr (assoc 'seconds m))))
+                (if seconds
+                    (format "%s seconds" seconds)
+                  "Am here")))))))
+
+(defun cider-spy-section-frequencies (cider-spy-section section-data child-type)
   (dolist (s (cider-spy-section-extract-freqencies section-data))
     (insert-string "\n")
     (cider-spy-with-section
-     cider-spy-section 'ns-loaded
+     cider-spy-section child-type
      (insert-string (cider-spy-section-frequency s)))))
+
+(defun cider-spy-section-nses-loaded (cider-spy-section section-data)
+  (cider-spy-section-frequencies cider-spy-section section-data 'ns-loaded))
+
+(defun cider-spy-section-fns (cider-spy-section section-data)
+  (cider-spy-section-frequencies cider-spy-section section-data 'fn))
 
 (defun cider-spy-section-devs (cider-spy-section section-data)
   (dolist (s (mapcar 'identity section-data))
