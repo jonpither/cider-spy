@@ -41,7 +41,7 @@ CIDER-SPY hub."
   :group 'cider-spy)
 
 (cl-defstruct cider-spy-section-def
-  type label extract-fn display-fn)
+  type label extract-fn display-fn jump-fn)
 
 (defconst cider-spy-summary-sections
   (list (make-cider-spy-section-def
@@ -64,19 +64,28 @@ CIDER-SPY hub."
         (make-cider-spy-section-def
          :type 'fns
          :label "Your Function Calls:"
-         :display-fn 'cider-spy-section-fns))
+         :display-fn 'cider-spy-section-fns)
+        (make-cider-spy-section-def
+         :type 'ns-breadcrumb
+         :jump-fn 'cider-spy-visit-ns)
+        (make-cider-spy-section-def
+         :type 'ns-loaded))
   "The CIDER-SPY summary sections used for presentation.")
+
+(defconst cider-spy-root-sections
+  '(devs session nses-loaded ns-trail fns))
 
 (defvar-local cider-spy-root-section nil
   "CIDER SPY sections are a hierarchy in the *CIDER-SPY-BUFFER*")
 
 (cl-defstruct cider-spy-section
-  type beginning end hidden children)
+  type data beginning end hidden children)
 
-(defmacro cider-spy-with-section (parent type &rest body)
+(defmacro cider-spy-with-section (parent type data &rest body)
   `(let ((spy-section (make-cider-spy-section
               :beginning (point)
-              :type ,type)))
+              :type ,type
+              :data ,data)))
      ,@body
      (setf (cider-spy-section-end spy-section) (point-marker))
      (setf (cider-spy-section-children ,parent)
@@ -95,7 +104,7 @@ CIDER-SPY hub."
   (dolist (m (mapcar 'identity section-data))
     (insert-string "\n")
     (cider-spy-with-section
-     cider-spy-section 'ns-breadcrumb
+     cider-spy-section 'ns-breadcrumb m
      (insert-string
       (format "%s (%s)"
               (cdr (assoc 'ns m))
@@ -120,7 +129,7 @@ CIDER-SPY hub."
   (dolist (s (cider-spy-section-extract-freqencies section-data))
     (insert-string "\n")
     (cider-spy-with-section
-     cider-spy-section child-type
+     cider-spy-section child-type section-data
      (insert-string (cider-spy-section-frequency s))
      (indent-region
       (cider-spy-section-beginning spy-section)
@@ -136,11 +145,17 @@ CIDER-SPY hub."
   (dolist (s (mapcar 'identity section-data))
     (insert-string "\n")
     (cider-spy-with-section
-     cider-spy-section 'dev
+     cider-spy-section 'dev section-data
      (insert-string s)
      (indent-region
       (cider-spy-section-beginning spy-section)
       (max-char) 2))))
+
+(defun cider-spy-def-for-type (type)
+  "Returns the CIDER-SPY section definition for the given type."
+  (car (-filter (lambda (s)
+                  (eq (cider-spy-section-def-type s) type))
+                cider-spy-summary-sections)))
 
 (defun cider-spy-insert-buffer-contents
   (buffer spy-data)
@@ -149,14 +164,15 @@ CIDER-SPY hub."
   (with-current-buffer buffer
     (setq cider-spy-root-section (make-cider-spy-section
                                   :type 'root))
-    (dolist (section-def cider-spy-summary-sections)
-      (let* ((section (assoc (cider-spy-section-def-type section-def) spy-data))
+    (dolist (root-section-type cider-spy-root-sections)
+      (let* ((section-def (cider-spy-def-for-type root-section-type))
+             (section (assoc (cider-spy-section-def-type section-def) spy-data))
              (section-data (and section (cdr section))))
         (when (> (point) 1)
           (insert-string "\n"))
         (when section-data
           (cider-spy-with-section
-           cider-spy-root-section (cider-spy-section-def-type section-def)
+           cider-spy-root-section (cider-spy-section-def-type section-def) section-data
            (insert-string (cider-spy-section-def-label section-def))
            (funcall (cider-spy-section-def-display-fn section-def)
                     spy-section section-data)
@@ -222,6 +238,26 @@ CIDER-SPY hub."
           (when (< beg end)
             (put-text-property beg end 'invisible hidden)))))))
 
+(defmacro cider-spy-with-section-at-point (&rest body)
+  `(let ((section (cider-spy-find-section-at-point)))
+     (when section
+       ,@body)))
+
+(defun cider-spy-visit-ns ()
+  (cider-spy-with-section-at-point
+   (cider-jump-to-def
+    (cdr (assoc 'ns (cider-spy-section-data section))))))
+
+(defun cider-spy-visit-section ()
+  (interactive)
+  (cider-spy-with-section-at-point
+   (let ((jump-fn (cider-spy-section-def-jump-fn
+                   (cider-spy-def-for-type
+                    (cider-spy-section-type
+                     section)))))
+     (when jump-fn
+       (funcall jump-fn)))))
+
 ;; TODO check indent-sexp, maybe I don't have to manually indent like I am
 (defun cider-spy-connect-to-hub ()
   "Connect to the CIDER-SPY-HUB"
@@ -284,6 +320,7 @@ the current buffer will be updated accordingly."
     (define-key map (kbd "n") 'cider-spy-next-section)
     (define-key map (kbd "p") 'cider-spy-previous-section)
     (define-key map (kbd "TAB") 'cider-spy-toggle-section-hidden)
+    (define-key map (kbd "RET") 'cider-spy-visit-section)
     map))
 
 (define-derived-mode cider-spy-buffer-mode cider-popup-buffer-mode
