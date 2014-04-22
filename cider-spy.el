@@ -66,10 +66,16 @@ CIDER-SPY hub."
          :label "Your Function Calls:"
          :display-fn 'cider-spy-section-fns)
         (make-cider-spy-section-def
+         :type 'fn
+         :jump-fn 'cider-spy-visit-form)
+        (make-cider-spy-section-def
          :type 'ns-breadcrumb
          :jump-fn 'cider-spy-visit-ns)
         (make-cider-spy-section-def
-         :type 'ns-loaded))
+         :type 'ns-loaded
+         :jump-fn 'cider-spy-visit-form)
+        (make-cider-spy-section-def
+         :type 'dev))
   "The CIDER-SPY summary sections used for presentation.")
 
 (defconst cider-spy-root-sections
@@ -129,7 +135,7 @@ CIDER-SPY hub."
   (dolist (s (cider-spy-section-extract-freqencies section-data))
     (insert-string "\n")
     (cider-spy-with-section
-     cider-spy-section child-type section-data
+     cider-spy-section child-type s
      (insert-string (cider-spy-section-frequency s))
      (indent-region
       (cider-spy-section-beginning spy-section)
@@ -145,7 +151,7 @@ CIDER-SPY hub."
   (dolist (s (mapcar 'identity section-data))
     (insert-string "\n")
     (cider-spy-with-section
-     cider-spy-section 'dev section-data
+     cider-spy-section 'dev s
      (insert-string s)
      (indent-region
       (cider-spy-section-beginning spy-section)
@@ -247,6 +253,11 @@ CIDER-SPY hub."
   (cider-spy-with-section-at-point
    (cider-jump-to-def
     (cdr (assoc 'ns (cider-spy-section-data section))))))
+
+(defun cider-spy-visit-form ()
+  (cider-spy-with-section-at-point
+   (cider-jump-to-def
+    (car (cider-spy-section-data section)))))
 
 (defun cider-spy-visit-section ()
   (interactive)
