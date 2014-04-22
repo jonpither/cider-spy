@@ -46,6 +46,7 @@ Keyboard shortcut                    | Description
 <kbd>r</kbd>| Reset the tracking data underpinning the `*cider-spy*` buffer.
 <kbd>n</kbd>| Goto to next section.
 <kbd>p</kbd>| Goto to previous section.
+<kbd>RETURN</kbd>| Visit section.
 <kbd>TAB</kbd>| Toggle section visibility.
 
 # Background
