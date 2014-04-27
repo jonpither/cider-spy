@@ -272,6 +272,7 @@ CIDER-SPY hub."
 ;; TODO check indent-sexp, maybe I don't have to manually indent like I am
 (defun cider-spy-connect-to-hub ()
   "Connect to the CIDER-SPY-HUB"
+  (interactive)
   (when cider-spy-hub-endpoint
     (let ((buffer (cider-popup-buffer "*cider spy hub*" t)))
       (cider-emit-into-popup-buffer buffer "CIDER SPY asked CIDER-SPY-NREPL to connect to CIDER SPY HUB...")
