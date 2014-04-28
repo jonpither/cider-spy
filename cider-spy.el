@@ -152,7 +152,7 @@ CIDER-SPY hub."
     (insert-string "\n")
     (cider-spy-with-section
      cider-spy-section 'dev s
-     (insert-string s)
+     (insert-string (format "%s: %s" (car s) (cdr s)))
      (indent-region
       (cider-spy-section-beginning spy-section)
       (max-char) 2))))

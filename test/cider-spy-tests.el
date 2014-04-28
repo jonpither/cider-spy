@@ -44,9 +44,9 @@
 
 (ert-deftest test-developers-hacking-section ()
   (with-temp-buffer
-    (cider-spy-refresh-buffer (current-buffer) "{\"devs\":[\"Awesomedude\"]}")
+    (cider-spy-refresh-buffer (current-buffer) "{\"devs\":{\"Awesomedude\" : \"foo.bar\"}}")
 
-    (should (equal "Devs Hacking:\n  Awesomedude"
+    (should (equal "Devs Hacking:\n  Awesomedude: foo.bar"
                    (cider-spy-test-grab-section-as-string (current-buffer) 'devs)))))
 
 (ert-deftest test-ns-trail-section ()
@@ -76,7 +76,7 @@
 (ert-deftest test-navigate-around-sections ()
   (with-temp-buffer
     (cider-spy-refresh-buffer (current-buffer)
-                              "{\"devs\":[\"Awesomedude\"],
+                              "{\"devs\":{\"Awesomedude\":\"foo.bar\"},
                               \"ns-trail\":[{\"ns\":\"proja.core\"}],
                               \"nses-loaded\":{\"proja.corea\":1},
                               \"fns\":{\"clojure.core/println\":2},
@@ -101,4 +101,5 @@
     ;; (should (eq 'session (cider-spy-section-type (cider-spy-find-section-at-point))))
     ;; (cider-spy-previous-section (current-buffer))
     ;; (should (eq 'devs (cider-spy-section-type (cider-spy-find-section-at-point)))
-            )))
+            )
+)
