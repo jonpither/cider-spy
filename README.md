@@ -34,8 +34,6 @@ colleagues.
 (setq cider-spy-hub-alias "my-alias")
 ```
 
-
-
 # Keyboard Shortcuts
 
 ### cider-spy-mode
@@ -55,23 +53,22 @@ This originally started life as a tool to help users learn about their own REPL 
 
 Since then it's morphed into being a tool to help developers share information. I.e. to ping code to each other and see where colleagues are.
 
-## TODOS
+## Feature TODOS
 
-* Document credits in official way. Magnars because I used a lot of `magit` patterns and `clj-refactor` build setup. bbatsov because he basically taught me Elisp via hacking on CIDER.
-* Integrate with travis.. follow CIDER
-* Right now summary is refreshed all the time - I should make a better process of firing off deltas (i.e. registrations). Perhaps I should start by having a dedicated 'flash message' section of the spy buffer.
-* Connected repl sessions - i.e. send someone some code
-* Dev x has been on this file.. etc etc.
 * Popup some code in a buffer on another devs emacs
-* Where is everyone right now? (project specific)
-* Refactor: Split out an interaction file.
-* Test: Do a ping
-* Namespaces/hunks should be links
+* Dev x has been on this file.. etc etc.
 * Functions run most often outside of immediate namespace
 * Functions run that fail most often
 * Time Fns: https://github.com/clojure-emacs/cider/issues/477.
-* Keep ref to last REPL eval (saves deffing)
 * REPL Summary: I spent x amount of time in this namespace today
+
+## Refactor TODOS
+
+* Integrate with travis.. follow CIDER
+* Right now summary is refreshed all the time - I should make a better process of firing off deltas (i.e. registrations). Perhaps I should start by having a dedicated 'flash message' section of the spy buffer.
+* Refactor: Split out an interaction file.
+* Test: Do a ping
+* Document credits in official way. Magnars because I used a lot of `magit` patterns and `clj-refactor` build setup. bbatsov because he basically taught me Elisp via hacking on CIDER.
 
 # License
 
