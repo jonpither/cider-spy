@@ -55,6 +55,8 @@ Since then it's morphed into being a tool to help developers share information. 
 
 ## Feature TODOS
 
+* Then cider-spy-hub should work if people do not specify an alias - it should show them as an `anon-user23323` or something.
+* We should then have a command so that people can change their alias.
 * Popup some code in a buffer on another devs emacs
 * Dev x has been on this file.. etc etc.
 * Functions run most often outside of immediate namespace
@@ -69,6 +71,18 @@ Since then it's morphed into being a tool to help developers share information. 
 * Refactor: Split out an interaction file.
 * Test: Do a ping
 * Document credits in official way. Magnars because I used a lot of `magit` patterns and `clj-refactor` build setup. bbatsov because he basically taught me Elisp via hacking on CIDER.
+
+## Config Rumination
+
+Can we move hub endpoint config into project.clj? It's a shared project thing. We're not subscribing people automatically as it's already optional in part; the hub functionality only works if people install `CIDER-SPY`. We could go further and completely disable the entire middleware if `CIDER-SPY` is not present.
+
+If we can't move it into project.clj, then perhaps just stick a `.cider-spy-root` file in the project root.
+
+Another config option is to use `ENVIRON` to allow users another chance at overriding the central project settings in `.cider-spy-root`. A further option is to use `ENVIRON` full stop and cut out the middle file.
+
+Once config storage has been sorted, we could give the option to `cider-spy-hub-connect-on-demand`. If true the nrepl-server instance only connects to hub when user initiates it through `CIDER-SPY`, otherwise it auto connects and people get the benefit straight away of seeing where ppl are (this is best option to show what `CIDER-SPY-HUB` can do). The rationale is that I like the idea it's a bit magical, that everything just works, even if other devs haven't install the `CIDER-SPY` Emacs package; other devs can still see where people are.
+
+BTW this rumination is the start of a section in the docs that explains the thought process. People will be rightfully worried about auto connecting and being spied on.
 
 # License
 
