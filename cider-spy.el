@@ -27,13 +27,6 @@
 (require 'json)
 (require 'dash)
 
-(defcustom cider-spy-hub-endpoint t
-  "Set `cider-spy-hub-endpoint' to designate a CIDER-SPY hub for sharing information
-between independent REPL sessions.
-The format is '(host port)."
-  :type 'list
-  :group 'cider-spy)
-
 (defcustom cider-spy-hub-alias t
   "Set `cider-spy-hub-alias' for a handle to identify REPL session owner in the
 CIDER-SPY hub."
@@ -273,24 +266,21 @@ CIDER-SPY hub."
 (defun cider-spy-connect-to-hub ()
   "Connect to the CIDER-SPY-HUB"
   (interactive)
-  (when cider-spy-hub-endpoint
-    (let ((buffer (cider-popup-buffer "*cider spy hub*" t)))
-      (cider-emit-into-popup-buffer buffer "CIDER SPY asked CIDER-SPY-NREPL to connect to CIDER SPY HUB...")
-      (nrepl-send-request
-       (append (list "op" "cider-spy-hub-connect"
-                     "session" (nrepl-current-session)
-                     "hub-host" (car cider-spy-hub-endpoint)
-                     "hub-port" (number-to-string (cadr cider-spy-hub-endpoint)))
-               (when cider-spy-hub-alias
-                 (list "hub-alias" cider-spy-hub-alias)))
-       (nrepl-make-response-handler
-        buffer
-        (lambda (buffer str)
-          (cider-emit-into-popup-buffer buffer (concat "\n" str)))
-        '()
-        (lambda (buffer _str)
-          (cider-emit-into-popup-buffer "Oops"))
-        '())))))
+  (let ((buffer (cider-popup-buffer "*cider spy hub*" t)))
+    (cider-emit-into-popup-buffer buffer "CIDER SPY asked CIDER-SPY-NREPL to connect to CIDER SPY HUB...")
+    (nrepl-send-request
+     (append (list "op" "cider-spy-hub-connect"
+                   "session" (nrepl-current-session))
+             (when cider-spy-hub-alias
+               (list "hub-alias" cider-spy-hub-alias)))
+     (nrepl-make-response-handler
+      buffer
+      (lambda (buffer str)
+        (cider-emit-into-popup-buffer buffer (concat "\n" str)))
+      '()
+      (lambda (buffer _str)
+        (cider-emit-into-popup-buffer "Oops"))
+      '()))))
 
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
