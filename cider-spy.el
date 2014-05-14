@@ -27,7 +27,7 @@
 (require 'json)
 (require 'dash)
 
-(defcustom cider-spy-hub-alias t
+(defcustom cider-spy-hub-alias nil
   "Set `cider-spy-hub-alias' for a handle to identify REPL session owner in the
 CIDER-SPY hub."
   :type 'string
