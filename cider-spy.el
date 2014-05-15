@@ -100,20 +100,22 @@ CIDER-SPY hub."
 
 (defun cider-spy-section-ns-trail (cider-spy-section section-data)
   "Display string for namespace trail."
-  (dolist (m (mapcar 'identity section-data))
-    (insert-string "\n")
-    (cider-spy-with-section
-     cider-spy-section 'ns-breadcrumb m
-     (insert-string
-      (format "%s (%s)"
-              (cdr (assoc 'ns m))
-              (let ((seconds (cdr (assoc 'seconds m))))
-                (if seconds
-                    (format "%s seconds" seconds)
-                  "Am here"))))
-     (indent-region
-      (cider-spy-section-beginning spy-section)
-      (max-char) 2))))
+  (let ((section-data (mapcar 'identity section-data)))
+    (when section-data
+      (dolist (m section-data)
+        (insert-string "\n")
+        (cider-spy-with-section
+         cider-spy-section 'ns-breadcrumb m
+         (insert-string
+          (format "%s (%s)"
+                  (cdr (assoc 'ns m))
+                  (let ((seconds (cdr (assoc 'seconds m))))
+                    (if seconds
+                        (format "%s seconds" seconds)
+                      "Am here"))))
+         (indent-region
+          (cider-spy-section-beginning spy-section)
+          (max-char) 2))))))
 
 (defun cider-spy-section-frequency (v)
   "Display frequency metric."
@@ -145,7 +147,8 @@ CIDER-SPY hub."
     (insert-string "\n")
     (cider-spy-with-section
      cider-spy-section 'dev s
-     (insert-string (format "%s: %s" (car s) (cdr s)))
+     (insert-string
+      (format "%s: %s" (car s) (cdr s)))
      (indent-region
       (cider-spy-section-beginning spy-section)
       (max-char) 2))))
@@ -167,9 +170,9 @@ CIDER-SPY hub."
       (let* ((section-def (cider-spy-def-for-type root-section-type))
              (section (assoc (cider-spy-section-def-type section-def) spy-data))
              (section-data (and section (cdr section))))
-        (when (> (point) 1)
-          (insert-string "\n"))
-        (when section-data
+        (when (car (mapcar 'identity section-data))
+          (when (> (point) 1)
+            (insert-string "\n"))
           (cider-spy-with-section
            cider-spy-root-section (cider-spy-section-def-type section-def) section-data
            (insert-string (cider-spy-section-def-label section-def))
