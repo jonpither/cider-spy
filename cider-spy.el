@@ -313,9 +313,20 @@ the current buffer will be updated accordingly."
   (interactive)
 
   (nrepl-send-request
-   (append (list "op" "cider-spy-reset"
-                 "session" (nrepl-current-session)))
+   (list "op" "cider-spy-reset"
+         "session" (nrepl-current-session))
    nil))
+
+(defun cider-spy-alias ()
+  "Reset CIDER-SPY tracking used for *cider-spy* buffer."
+  (interactive)
+
+  (let ((alias (read-string "Set Alias: ")))
+    (nrepl-send-request
+     (list "op" "cider-spy-hub-alias"
+           "session" (nrepl-current-session)
+           "alias" alias)
+     nil)))
 
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
@@ -324,6 +335,7 @@ the current buffer will be updated accordingly."
     (define-key map (kbd "r") 'cider-spy-reset)
     (define-key map (kbd "n") 'cider-spy-next-section)
     (define-key map (kbd "p") 'cider-spy-previous-section)
+    (define-key map (kbd "a") 'cider-spy-alias)
     (define-key map (kbd "TAB") 'cider-spy-toggle-section-hidden)
     (define-key map (kbd "RET") 'cider-spy-visit-section)
     map))
