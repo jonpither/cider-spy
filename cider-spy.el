@@ -328,6 +328,30 @@ the current buffer will be updated accordingly."
            "alias" alias)
      nil)))
 
+(defun cider-spy-send-message ()
+  (interactive)
+
+  (let ((buf (get-buffer-create "*cider spy msg*")))
+    (pop-to-buffer buf)
+    (cider-spy-edit-mode)
+    (message "Type C-c C-c to send (C-c C-k to cancel).")))
+
+;; todo split out the "send-mode"
+
+(defun cider-spy-send-foo ()
+  (interactive)
+  (message "sent")
+  (kill-buffer (get-buffer "*cider spy msg*")))
+
+(defvar cider-spy-edit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") 'cider-spy-send-foo)
+;;    (define-key map (kbd "C-c C-k") 'cider-spy-send-foo)
+    map
+    ))
+
+(define-derived-mode cider-spy-edit-mode text-mode "Cider Spy Edit")
+
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map t)
