@@ -254,8 +254,9 @@ CIDER-SPY hub."
 (defun cider-spy-send-to-dev ()
   (interactive)
   (cider-spy-with-section-at-point
-   (cider-spy-edit-message (car (cider-spy-section-data section))
-                           (cdr (assoc 'alias (cdr (cider-spy-section-data section)))))))
+   (when (eq 'dev (cider-spy-section-type section))
+     (cider-spy-edit-message (car (cider-spy-section-data section))
+                             (cdr (assoc 'alias (cdr (cider-spy-section-data section))))))))
 
 (defun cider-spy-visit-form ()
   (cider-spy-with-section-at-point

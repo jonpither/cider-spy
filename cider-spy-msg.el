@@ -23,6 +23,8 @@
 
 ;; This file is not part of GNU Emacs.
 
+;; TODO a later effort is to make a decent interactive command that uses completing read to get the right alias. It'd have to use the first id.
+
 (defvar cider-spy-msg-edit-buffer-name "*cider spy msg*"
   "Buffer name for composing messages.")
 
@@ -30,7 +32,6 @@
 
 (defun cider-spy-edit-message (id alias)
   (interactive)
-
   (let ((buf (get-buffer-create cider-spy-msg-edit-buffer-name)))
     (setq cider-spy-edit-prev-window-configuration
           (current-window-configuration))
