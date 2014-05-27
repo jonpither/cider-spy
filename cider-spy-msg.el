@@ -23,18 +23,29 @@
 
 ;; This file is not part of GNU Emacs.
 
+(defvar cider-spy-msg-edit-buffer-name "*cider spy msg*"
+  "Buffer name for composing messages.")
+
+(defvar cider-spy-edit-prev-window-configuration nil)
+
 (defun cider-spy-edit-message ()
   (interactive)
 
-  (let ((buf (get-buffer-create "*cider spy msg*")))
+  (let ((buf (get-buffer-create cider-spy-msg-edit-buffer-name)))
+    (setq cider-spy-edit-prev-window-configuration
+          (current-window-configuration))
+
     (pop-to-buffer buf)
     (cider-spy-edit-mode)
     (message "Type C-c C-c to send (C-c C-k to cancel).")))
 
 (defun cider-spy-send-foo ()
   (interactive)
-  (message "sent")
-  (kill-buffer (get-buffer "*cider spy msg*")))
+  (message "Sent message")
+  (kill-buffer (get-buffer cider-spy-msg-edit-buffer-name))
+  (when cider-spy-edit-prev-window-configuration
+    (set-window-configuration cider-spy-edit-prev-window-configuration)
+    (setq cider-spy-edit-prev-window-configuration nil)))
 
 (defvar cider-spy-edit-mode-map
   (let ((map (make-sparse-keymap)))
