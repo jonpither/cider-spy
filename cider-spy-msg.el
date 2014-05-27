@@ -25,16 +25,21 @@
 
 ;; TODO a later effort is to make a decent interactive command that uses completing read to get the right alias. It'd have to use the first id.
 
+(require 'nrepl-client)
+
 (defvar cider-spy-msg-edit-buffer-name "*cider spy msg*"
   "Buffer name for composing messages.")
 
 (defvar cider-spy-edit-prev-window-configuration nil)
+
+(defvar cider-spy-recipient-id nil)
 
 (defun cider-spy-edit-message (id alias)
   (interactive)
   (let ((buf (get-buffer-create cider-spy-msg-edit-buffer-name)))
     (setq cider-spy-edit-prev-window-configuration
           (current-window-configuration))
+    (setq cider-spy-recipient-id id)
     (pop-to-buffer buf)
     (erase-buffer)
     (insert (format "## Send message to %s\n\n" alias))
@@ -44,7 +49,12 @@
 
 (defun cider-spy-send-foo ()
   (interactive)
-  (message "Sent message") ;; todo embed alias in this msg
+  (nrepl-send-request
+   (list "op" "cider-spy-hub-send-msg"
+         "session" (nrepl-current-session)
+         "recipient" (symbol-name cider-spy-recipient-id))
+   nil)
+  (message "Sent message to %s" cider-spy-recipient-id)
   (kill-buffer (get-buffer cider-spy-msg-edit-buffer-name))
   (when cider-spy-edit-prev-window-configuration
     (set-window-configuration cider-spy-edit-prev-window-configuration)
