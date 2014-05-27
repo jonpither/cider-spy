@@ -39,11 +39,12 @@
     (erase-buffer)
     (insert (format "## Send message to %s\n\n" alias))
     (cider-spy-edit-mode)
+    (font-lock-fontify-buffer)
     (message "Type C-c C-c to send (C-c C-k to cancel).")))
 
 (defun cider-spy-send-foo ()
   (interactive)
-  (message "Sent message")
+  (message "Sent message") ;; todo embed alias in this msg
   (kill-buffer (get-buffer cider-spy-msg-edit-buffer-name))
   (when cider-spy-edit-prev-window-configuration
     (set-window-configuration cider-spy-edit-prev-window-configuration)
@@ -57,6 +58,9 @@
     ))
 
 (define-derived-mode cider-spy-edit-mode text-mode "Cider Spy Edit")
+
+(font-lock-add-keywords 'cider-spy-edit-mode
+                        '(("## Send.*\n" . font-lock-comment-face)))
 
 (provide 'cider-spy-msg)
 
