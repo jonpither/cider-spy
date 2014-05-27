@@ -251,6 +251,12 @@ CIDER-SPY hub."
    (cider-jump-to-def
     (cdr (assoc 'ns (cider-spy-section-data section))))))
 
+(defun cider-spy-send-to-dev ()
+  (interactive)
+  (cider-spy-with-section-at-point
+   (cider-spy-edit-message (car (cider-spy-section-data section))
+                           (cdr (assoc 'alias (cdr (cider-spy-section-data section)))))))
+
 (defun cider-spy-visit-form ()
   (cider-spy-with-section-at-point
    (cider-jump-to-def
@@ -337,7 +343,7 @@ the current buffer will be updated accordingly."
     (define-key map (kbd "n") 'cider-spy-next-section)
     (define-key map (kbd "p") 'cider-spy-previous-section)
     (define-key map (kbd "a") 'cider-spy-alias)
-    (define-key map (kbd "s") 'cider-spy-edit-message)
+    (define-key map (kbd "s") 'cider-spy-send-to-dev)
     (define-key map (kbd "TAB") 'cider-spy-toggle-section-hidden)
     (define-key map (kbd "RET") 'cider-spy-visit-section)
     map))

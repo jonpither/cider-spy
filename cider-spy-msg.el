@@ -28,14 +28,15 @@
 
 (defvar cider-spy-edit-prev-window-configuration nil)
 
-(defun cider-spy-edit-message ()
+(defun cider-spy-edit-message (id alias)
   (interactive)
 
   (let ((buf (get-buffer-create cider-spy-msg-edit-buffer-name)))
     (setq cider-spy-edit-prev-window-configuration
           (current-window-configuration))
-
     (pop-to-buffer buf)
+    (erase-buffer)
+    (insert (format "## Send message to %s\n\n" alias))
     (cider-spy-edit-mode)
     (message "Type C-c C-c to send (C-c C-k to cancel).")))
 
