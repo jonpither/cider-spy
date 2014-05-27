@@ -55,7 +55,7 @@ This originally started life as a tool to help users learn about their own REPL 
 
 Since then it's morphed into being a tool to help developers share information. I.e. to ping code to each other and see where colleagues are.
 
-![Cider Spy Menu](https://github.com/jonpither/cider-spy/raw/master/images/menu.png)
+![Cider Spy Menu](/images/menu.png?raw=true)
 
 ## Feature ideas
 
