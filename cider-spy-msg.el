@@ -47,14 +47,23 @@
     (font-lock-fontify-buffer)
     (message "Type C-c C-c to send (C-c C-k to cancel).")))
 
+(defun cider-spy-msg-from-edit-buffer ()
+  (interactive)
+  (with-current-buffer cider-spy-msg-edit-buffer-name
+    (save-excursion
+      (goto-char 0)
+      (re-search-forward "Send.*\n\n")
+      (buffer-substring-no-properties (match-end 0) (point-max)))))
+
 (defun cider-spy-send-foo ()
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-send-msg"
          "session" (nrepl-current-session)
-         "recipient" (symbol-name cider-spy-recipient-id))
+         "recipient" (symbol-name cider-spy-recipient-id)
+         "message" (cider-spy-msg-from-edit-buffer))
    nil)
-  (message "Sent message to %s" cider-spy-recipient-id)
+  (message "Sent message to %s." cider-spy-recipient-id)
   (kill-buffer (get-buffer cider-spy-msg-edit-buffer-name))
   (when cider-spy-edit-prev-window-configuration
     (set-window-configuration cider-spy-edit-prev-window-configuration)
@@ -74,4 +83,4 @@
 
 (provide 'cider-spy-msg)
 
-;;; cider-spy.el ends here
+;;; cider-spy-msg.el ends here
