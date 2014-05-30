@@ -34,7 +34,7 @@
 
 (defvar cider-spy-recipient-id nil)
 
-(defun cider-spy-edit-message (id alias)
+(defun cider-spy-msg-edit (id alias)
   (interactive)
   (let ((buf (get-buffer-create cider-spy-msg-edit-buffer-name)))
     (setq cider-spy-edit-prev-window-configuration
@@ -55,7 +55,7 @@
       (re-search-forward "Send.*\n\n")
       (buffer-substring-no-properties (match-end 0) (point-max)))))
 
-(defun cider-spy-send-foo ()
+(defun cider-spy-msg-send ()
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-send-msg"
@@ -64,6 +64,10 @@
          "message" (cider-spy-msg-from-edit-buffer))
    nil)
   (message "Sent message to %s." cider-spy-recipient-id)
+  (cider-spy-msg-quit))
+
+(defun cider-spy-msg-quit ()
+  (interactive)
   (kill-buffer (get-buffer cider-spy-msg-edit-buffer-name))
   (when cider-spy-edit-prev-window-configuration
     (set-window-configuration cider-spy-edit-prev-window-configuration)
@@ -71,10 +75,9 @@
 
 (defvar cider-spy-edit-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'cider-spy-send-foo)
-;;    (define-key map (kbd "C-c C-k") 'cider-spy-send-foo)
-    map
-    ))
+    (define-key map (kbd "C-c C-c") 'cider-spy-msg-send)
+    (define-key map (kbd "C-c C-k") 'cider-spy-msg-quit)
+    map))
 
 (define-derived-mode cider-spy-edit-mode text-mode "Cider Spy Edit")
 
