@@ -15,18 +15,23 @@ If you want the developer interactivity behavours, then you need a run a `CIDER-
 
 ## Configuration
 
-You can certainly use `CIDER-SPY` without configuring it any further
-to get summary information about your own REPL session. But configuration
-is needed if you want to connect to a `CIDER-SPY-HUB` to interact with your
-colleagues.
+You can use `CIDER-SPY` without configuring it any further
+to get summary information about your own REPL session.
+
+Configuration is needed if you want to connect to a `CIDER-SPY-HUB` to interact with your
+colleagues, to view where they are, and to to exchange messaging etc.
 
 ### Basic configuration
 
-* Set `cider-spy-hub-endpoint` to where the `CIDER-SPY-HUB` is running.
+* Add `CIDER-SPY` middleware to your project:
 
-```el
-(setq cider-spy-hub-endpoint '("localhost" 7771)
-```
+    :profiles {:dev {:dependencies [[cider-spy/cider-spy-nrepl "0.1.0-SNAPSHOT"]]
+                       :repl-options {:nrepl-middleware [cider-spy-nrepl.middleware.cider-spy/wrap-cider-spy]}}}`
+
+
+### Basic configuration for HUB
+
+* Ensure the HUB and HUB middleware is [configured correctly](https://github.com/jonpither/cider-spy-nrepl).
 
 * Give yourself an alias on the hub.
 
