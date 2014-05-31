@@ -273,25 +273,20 @@ CIDER-SPY hub."
      (when jump-fn
        (funcall jump-fn)))))
 
-;; TODO check indent-sexp, maybe I don't have to manually indent like I am
 (defun cider-spy-connect-to-hub ()
   "Connect to the CIDER-SPY-HUB"
   (interactive)
-  (let ((buffer (cider-popup-buffer "*cider spy hub*" t)))
-    (cider-emit-into-popup-buffer buffer "CIDER SPY asked CIDER-SPY-NREPL to connect to CIDER SPY HUB...")
-    (nrepl-send-request
-     (append (list "op" "cider-spy-hub-connect"
-                   "session" (nrepl-current-session))
-             (when cider-spy-hub-alias
-               (list "hub-alias" cider-spy-hub-alias)))
-     (nrepl-make-response-handler
-      buffer
-      (lambda (buffer str)
-        (cider-emit-into-popup-buffer buffer (concat "\n" str)))
-      '()
-      (lambda (buffer _str)
-        (cider-emit-into-popup-buffer "Oops"))
-      '()))))
+  (nrepl-send-request
+   (append (list "op" "cider-spy-hub-connect"
+                 "session" (nrepl-current-session))
+           (when cider-spy-hub-alias
+             (list "hub-alias" cider-spy-hub-alias)))
+   (lambda (response)
+     (nrepl-dbind-response response (value err)
+       (cond (value
+              (cider-emit-into-popup-buffer (get-buffer-create "*cider spy hub*") (concat value "\n")))
+             (err
+              (cider-emit-into-popup-buffer (get-buffer-create "*cider spy hub*") (concat "OOPS\n" err "\n"))))))))
 
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
