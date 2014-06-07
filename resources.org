@@ -1,0 +1,1 @@
+erc src code: http://git.savannah.gnu.org/cgit/emacs.git/tree/lisp/erc/erc.el?h=emacs-24
