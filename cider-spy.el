@@ -282,8 +282,10 @@ CIDER-SPY hub."
            (when cider-spy-hub-alias
              (list "hub-alias" cider-spy-hub-alias)))
    (lambda (response)
-     (nrepl-dbind-response response (value err)
-       (cond (value
+     (nrepl-dbind-response response (value err msg)
+       (cond (msg
+              (cider-spy-msg-popup msg))
+             (value
               (cider-emit-into-popup-buffer (get-buffer-create "*cider spy hub*") (concat value "\n")))
              (err
               (cider-emit-into-popup-buffer (get-buffer-create "*cider spy hub*") (concat "OOPS\n" err "\n"))))))))
