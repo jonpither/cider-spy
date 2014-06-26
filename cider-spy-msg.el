@@ -78,10 +78,10 @@
 
 (defun cider-spy-msg-popup (from msg)
   (with-current-buffer (get-buffer-create (format cider-spy-msg-popup-buffer-name-template from))
-    (erase-buffer)
     (insert from)
     (insert " >> ")
-    (insert msg))
+    (insert msg)
+    (insert "\n"))
   (pop-to-buffer (format cider-spy-msg-popup-buffer-name-template from)))
 
 (defvar cider-spy-edit-mode-map
