@@ -76,11 +76,11 @@
     (set-window-configuration cider-spy-edit-prev-window-configuration)
     (setq cider-spy-edit-prev-window-configuration nil)))
 
-(defun cider-spy-msg-popup (msg)
-  (message "sie shi %s" msg)
+(defun cider-spy-msg-popup (from msg)
   (with-current-buffer (get-buffer-create cider-spy-msg-popup-buffer-name)
     (erase-buffer)
-    (insert ">> ")
+    (insert from)
+    (insert " >> ")
     (insert msg))
   (pop-to-buffer cider-spy-msg-popup-buffer-name))
 
