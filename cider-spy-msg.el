@@ -81,7 +81,9 @@
     (insert from)
     (insert " >> ")
     (insert msg)
-    (insert "\n"))
+    (insert "\n")
+    (cider-spy-popup-mode)
+    (font-lock-fontify-buffer))
   (pop-to-buffer (format cider-spy-msg-popup-buffer-name-template from)))
 
 (defvar cider-spy-edit-mode-map
@@ -94,6 +96,12 @@
 
 (font-lock-add-keywords 'cider-spy-edit-mode
                         '(("## Send.*\n" . font-lock-comment-face)))
+
+(define-derived-mode cider-spy-popup-mode text-mode "Cider Spy Popup")
+
+(font-lock-add-keywords 'cider-spy-popup-mode
+                        '(("^.*\s" . font-lock-keyword-face))
+                        '((">>" . font-lock-comment-face)))
 
 (provide 'cider-spy-msg)
 
