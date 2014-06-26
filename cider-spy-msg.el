@@ -30,7 +30,7 @@
 (defvar cider-spy-msg-edit-buffer-name "*cider spy msg*"
   "Buffer name for composing messages.")
 
-(defvar cider-spy-msg-popup-buffer-name "*hub msg*"
+(defvar cider-spy-msg-popup-buffer-name-template "*hub %s*"
   "Buffer name for message popup.")
 
 (defvar cider-spy-edit-prev-window-configuration nil)
@@ -77,12 +77,12 @@
     (setq cider-spy-edit-prev-window-configuration nil)))
 
 (defun cider-spy-msg-popup (from msg)
-  (with-current-buffer (get-buffer-create cider-spy-msg-popup-buffer-name)
+  (with-current-buffer (get-buffer-create (format cider-spy-msg-popup-buffer-name-template from))
     (erase-buffer)
     (insert from)
     (insert " >> ")
     (insert msg))
-  (pop-to-buffer cider-spy-msg-popup-buffer-name))
+  (pop-to-buffer (format cider-spy-msg-popup-buffer-name-template from)))
 
 (defvar cider-spy-edit-mode-map
   (let ((map (make-sparse-keymap)))
