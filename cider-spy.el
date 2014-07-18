@@ -333,6 +333,15 @@ the current buffer will be updated accordingly."
            "alias" alias)
      nil)))
 
+(defun cider-spy-hub-disconnect ()
+  "Disconnect from CIDER-SPY-HUB."
+  (interactive)
+
+  (nrepl-send-request
+   (list "op" "cider-spy-hub-disconnect"
+         "session" (nrepl-current-session))
+   nil))
+
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map t)
@@ -342,6 +351,7 @@ the current buffer will be updated accordingly."
     (define-key map (kbd "p") 'cider-spy-previous-section)
     (define-key map (kbd "a") 'cider-spy-alias)
     (define-key map (kbd "s") 'cider-spy-send-to-dev)
+    (define-key map (kbd "d") 'cider-spy-hub-disconnect)
     (define-key map (kbd "TAB") 'cider-spy-toggle-section-hidden)
     (define-key map (kbd "RET") 'cider-spy-visit-section)
     map))
