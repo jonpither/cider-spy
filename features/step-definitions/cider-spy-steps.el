@@ -1,13 +1,10 @@
-(Given "^I refresh with \"\\(.+\\)\"$"
+(Given "^I refresh with \\(.+\\)$"
   (lambda (json)
-    (message "f1 %s" json)
-    (cider-spy-refresh-buffer (current-buffer) json)
-    (message "f2")))
+    (cider-spy-refresh-buffer (get-buffer-create "buf") json)))
 
 (Then "^I should see \"\\(.+\\)\" in the \"\\(.+\\)\" section$"
   (lambda (str section)
-    (message "c")
-    (let ((section-text (cider-spy-test-grab-section-as-string (current-buffer) (make-symbol section))))
-      (assert true)
-;;      (assert (equal str section-text) nil "Expected %S got %S" str section-text)
-      )))
+    (let ((section-text (replace-regexp-in-string
+                         "\n" "" (cider-spy-test-grab-section-as-string
+                                  (get-buffer-create "buf") (make-symbol section)))))
+      (assert (equal str section-text) nil "Expected %S got %S" str section-text))))
