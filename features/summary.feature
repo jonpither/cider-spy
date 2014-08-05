@@ -26,3 +26,19 @@ Feature: Summary Display
     And I go to beginning of summary buffer
     And I go to the next section
     Then I should be on a "dev" section
+    And I go to the next section
+    Then I should be on a "session" section
+    And I go to the next section
+    Then I should be on a "nses-loaded" section
+
+    # (cider-spy-next-section (current-buffer))
+    # (message (cider-spy-find-section-at-point))
+    # (should (eq 'ns-breadcrumb (cider-spy-section-type (cider-spy-find-section-at-point))))
+
+    # (cider-spy-previous-section (current-buffer))
+    # (should (eq 'nses-loaded (cider-spy-section-type (cider-spy-find-section-at-point))))
+    # (should (eq 'nses-loaded (cider-spy-section-type (cider-spy-find-section-at-point))))
+    # (cider-spy-previous-section (current-buffer))
+    # (should (eq 'session (cider-spy-section-type (cider-spy-find-section-at-point))))
+    # (cider-spy-previous-section (current-buffer))
+    # (should (eq 'devs (cider-spy-section-type (cider-spy-find-section-at-point)))
