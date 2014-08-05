@@ -19,7 +19,7 @@ Feature: Summary Display
 
   Scenario:
     When I refresh with {"session" : {"started" : "08:59:34", "seconds" : 21}}
-    Then I should see "Your Session:  Started 08:59:34, uptime: 21 seconds." in the "session" section
+    Then I should see "Your S2ession:  Started 08:59:34, uptime: 21 seconds." in the "session" section
 
   Scenario:
     When I refresh with {"devs":{"some-id" : {"alias" : "Awesomedude", "nses" : ["foo.bar"]}}, "ns-trail":[{"ns" : "proja.core"}], "nses-loaded" : {"proja.corea" : 1}, "fns" : {"clojure.core/println" : 2}, "session" : {"started" : "08:59:34", "seconds" : 21}}
