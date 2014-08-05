@@ -42,19 +42,6 @@
       (buffer-substring-no-properties (cider-spy-section-beginning section)
                                       (- (cider-spy-section-end section) 1)))))
 
-(ert-deftest test-developers-hacking-section ()
-  (with-temp-buffer
-    (cider-spy-refresh-buffer (current-buffer) "{\"devs\":{\"Awesomedude\" : \"foo.bar\"}}")
-
-    (should (equal "Devs Hacking:\n  Awesomedude: foo.bar"
-                   (cider-spy-test-grab-section-as-string (current-buffer) 'devs)))))
-
-(ert-deftest test-ns-trail-section ()
-  (with-temp-buffer
-    (cider-spy-refresh-buffer (current-buffer) "{\"ns-trail\":[{\"ns\":\"proja.core\"},{\"ns\":\"proja.core2\", \"seconds\":100}]}")
-    (should (equal "Your Namespace Trail:\n  proja.core (Am here)\n  proja.core2 (100 seconds)"
-                   (cider-spy-test-grab-section-as-string (current-buffer) 'ns-trail)))))
-
 (ert-deftest test-nses-loaded-section ()
   (with-temp-buffer
     (cider-spy-refresh-buffer (current-buffer) "{\"nses-loaded\":{\"proja.corea\":1, \"proja.coreb\":2}}")
