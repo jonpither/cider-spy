@@ -42,18 +42,6 @@
       (buffer-substring-no-properties (cider-spy-section-beginning section)
                                       (- (cider-spy-section-end section) 1)))))
 
-(ert-deftest test-fns-section ()
-  (with-temp-buffer
-    (cider-spy-refresh-buffer (current-buffer) "{\"fns\":{\"clojure.core/println\":2, \"clojure.core/str\":1}}")
-    (should (equal "Your Function Calls:\n  clojure.core/println (2 times)\n  clojure.core/str (1 times)"
-                   (cider-spy-test-grab-section-as-string (current-buffer) 'fns)))))
-
-(ert-deftest test-session-section ()
-  (with-temp-buffer
-    (cider-spy-refresh-buffer (current-buffer) "{\"session\":{\"started\":\"08:59:34\",\"seconds\":21}}")
-    (should (equal "Your Session:\n  Started 08:59:34, uptime: 21 seconds."
-                   (cider-spy-test-grab-section-as-string (current-buffer) 'session)))))
-
 (ert-deftest test-navigate-around-sections ()
   (with-temp-buffer
     (cider-spy-refresh-buffer (current-buffer)

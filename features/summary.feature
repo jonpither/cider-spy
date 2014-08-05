@@ -12,3 +12,11 @@ Feature: Summary Display
   Scenario:
     When I refresh with {"nses-loaded" : {"proja.corea" : 1, "proja.coreb" : 2}}
     Then I should see "Your Namespaces Loaded:  proja.coreb (2 times)  proja.corea (1 times)" in the "nses-loaded" section
+
+  Scenario:
+    When I refresh with {"fns" : {"clojure.core/println" : 2, "clojure.core/str" : 1}}
+    Then I should see "Your Function Calls:  clojure.core/println (2 times)  clojure.core/str (1 times)" in the "fns" section
+
+  Scenario:
+    When I refresh with {"session" : {"started" : "08:59:34", "seconds" : 21}}
+    Then I should see "Your Session:  Started 08:59:34, uptime: 21 seconds." in the "session" section
