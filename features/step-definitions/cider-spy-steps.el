@@ -19,6 +19,11 @@
     (with-current-buffer (get-buffer-create "buf")
       (cider-spy-next-section (current-buffer)))))
 
+(And "^I go to the previous section$"
+  (lambda ()
+    (with-current-buffer (get-buffer-create "buf")
+      (cider-spy-previous-section (current-buffer)))))
+
 (Then "^I should be on a \"\\(.+\\)\" section$"
   (lambda (section)
     (with-current-buffer (get-buffer-create "buf")
