@@ -3,6 +3,8 @@ RIGHT NOW IT'S GROSSLY UNSTABLE - COME BACK SOON!
 
 # CIDER Spy
 
+[![Build Status](https://travis-ci.org/jonpither/cider-spy.svg?branch=master)](https://travis-ci.org/jonpither/cider-spy)
+
 Spy on CIDER nREPL sessions and help developers and teams share information, send code snippets to each other etc.
 
 # Installation
