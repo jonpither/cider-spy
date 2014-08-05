@@ -8,3 +8,7 @@ Feature: Summary Display
   Scenario:
     When I refresh with {"ns-trail":[{"ns" : "proja.core"}, {"ns" : "proja.core2", "seconds" : 100}]}
     Then I should see "Your Namespace Trail:  proja.core (Am here)  proja.core2 (100 seconds)" in the "ns-trail" section
+
+  Scenario:
+    When I refresh with {"nses-loaded" : {"proja.corea" : 1, "proja.coreb" : 2}}
+    Then I should see "Your Namespaces Loaded:  proja.coreb (2 times)  proja.corea (1 times)" in the "nses-loaded" section

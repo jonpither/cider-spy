@@ -42,12 +42,6 @@
       (buffer-substring-no-properties (cider-spy-section-beginning section)
                                       (- (cider-spy-section-end section) 1)))))
 
-(ert-deftest test-nses-loaded-section ()
-  (with-temp-buffer
-    (cider-spy-refresh-buffer (current-buffer) "{\"nses-loaded\":{\"proja.corea\":1, \"proja.coreb\":2}}")
-    (should (equal "Your Namespaces Loaded:\n  proja.coreb (2 times)\n  proja.corea (1 times)"
-                   (cider-spy-test-grab-section-as-string (current-buffer) 'nses-loaded)))))
-
 (ert-deftest test-fns-section ()
   (with-temp-buffer
     (cider-spy-refresh-buffer (current-buffer) "{\"fns\":{\"clojure.core/println\":2, \"clojure.core/str\":1}}")
