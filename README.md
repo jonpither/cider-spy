@@ -75,7 +75,7 @@ Since then it's morphed into being a tool to help developers share information. 
 ## Refactor ideas
 
 * Right now summary is refreshed all the time - I should make a better process of firing off deltas (i.e. registrations). Perhaps I should start by having a dedicated 'flash message' section of the spy buffer.
-* Refactor: Split out an interaction file.
+* Refactor: Split out a separate interaction file.
 * Test: Do a ping
 * Document credits in official way. Magnars because I used a lot of `magit` patterns and `clj-refactor` build setup. The `CIDER` team.
 
