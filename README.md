@@ -1,4 +1,4 @@
-_THIS PROJECT IS IN ACTIVE DEVELOPMENT_
+_THIS PROJECT IS IN ACTIVE DEVELOPMENT. It's not ready for general use but will soon._
 
 # CIDER Spy
 
