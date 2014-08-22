@@ -420,12 +420,22 @@ the current buffer will be updated accordingly."
     (set-window-configuration cider-spy-edit-prev-window-configuration)
     (setq cider-spy-edit-prev-window-configuration nil)))
 
+(defun cider-spy-msg--insert-msg (from msg)
+  "Insert the msg into msg buffer"
+  (unless (bolp) (insert-before-markers "\n"))
+  (insert from)
+  (insert " >> ")
+  (insert msg))
+
+(defun cider-spy-msg--insert-prompt ()
+  "Insert a prompt into msg buffer"
+  (unless (bolp) (insert-before-markers "\n"))
+  (insert-before-markers "Me >> "))
+
 (defun cider-spy-msg-popup (from msg)
   (with-current-buffer (get-buffer-create (format cider-spy-msg-popup-buffer-name-template from))
-    (insert from)
-    (insert " >> ")
-    (insert msg)
-    (insert "\n")
+    (cider-spy-msg--insert-msg from msg)
+    (cider-spy-msg--insert-prompt)
     (cider-spy-popup-mode)
     (font-lock-fontify-buffer))
   (pop-to-buffer (format cider-spy-msg-popup-buffer-name-template from)))
