@@ -429,12 +429,14 @@ the current buffer will be updated accordingly."
   (insert from)
   (insert " >> ")
   (insert msg)
-  (set-marker cider-spy-msg-output-end (point)))
+  (insert "\n")
+  (set-marker cider-spy-msg-output-end (point))
+  (goto-char (max-char)))
 
 (defun cider-spy-msg--insert-prompt ()
   "Insert a prompt into msg buffer"
-  (unless (bolp) (insert-before-markers "\n"))
-  (insert-before-markers "Me >> "))
+  (unless (bolp) (insert "\n"))
+  (insert "Me >> "))
 
 (defun cider-spy-msg-reset-markers ()
   "Reset all CIDER-SPY-MSG markers."
@@ -448,11 +450,11 @@ the current buffer will be updated accordingly."
       (with-current-buffer (get-buffer-create buffer-name)
         ;; Initialise message buffer
         (cider-spy-popup-mode)
-        (cider-spy-msg-reset-markers)))
+        (cider-spy-msg-reset-markers)
+        (cider-spy-msg--insert-prompt)))
     (with-current-buffer (get-buffer buffer-name)
       (goto-char cider-spy-msg-output-end)
       (cider-spy-msg--insert-msg from msg)
-      (cider-spy-msg--insert-prompt)
       (font-lock-fontify-buffer))
     (pop-to-buffer buffer-name)))
 
