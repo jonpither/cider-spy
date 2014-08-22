@@ -381,6 +381,9 @@ the current buffer will be updated accordingly."
 
 (defvar cider-spy-recipient-id nil)
 
+(defvar-local cider-spy-msg-output-end nil
+  "Marker for the end of output.")
+
 (defun cider-spy-msg-edit (id alias)
   (interactive)
   (let ((buf (get-buffer-create cider-spy-msg-edit-buffer-name)))
@@ -425,20 +428,33 @@ the current buffer will be updated accordingly."
   (unless (bolp) (insert-before-markers "\n"))
   (insert from)
   (insert " >> ")
-  (insert msg))
+  (insert msg)
+  (set-marker cider-spy-msg-output-end (point)))
 
 (defun cider-spy-msg--insert-prompt ()
   "Insert a prompt into msg buffer"
   (unless (bolp) (insert-before-markers "\n"))
   (insert-before-markers "Me >> "))
 
+(defun cider-spy-msg-reset-markers ()
+  "Reset all CIDER-SPY-MSG markers."
+  (dolist (markname '(cider-spy-msg-output-end))
+    (set markname (make-marker))
+    (set-marker (symbol-value markname) (point))))
+
 (defun cider-spy-msg-popup (from msg)
-  (with-current-buffer (get-buffer-create (format cider-spy-msg-popup-buffer-name-template from))
-    (cider-spy-msg--insert-msg from msg)
-    (cider-spy-msg--insert-prompt)
-    (cider-spy-popup-mode)
-    (font-lock-fontify-buffer))
-  (pop-to-buffer (format cider-spy-msg-popup-buffer-name-template from)))
+  (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template from)))
+    (unless (get-buffer buffer-name)
+      (with-current-buffer (get-buffer-create buffer-name)
+        ;; Initialise message buffer
+        (cider-spy-popup-mode)
+        (cider-spy-msg-reset-markers)))
+    (with-current-buffer (get-buffer buffer-name)
+      (goto-char cider-spy-msg-output-end)
+      (cider-spy-msg--insert-msg from msg)
+      (cider-spy-msg--insert-prompt)
+      (font-lock-fontify-buffer))
+    (pop-to-buffer buffer-name)))
 
 (defvar cider-spy-edit-mode-map
   (let ((map (make-sparse-keymap)))
