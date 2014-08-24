@@ -336,7 +336,6 @@ the current buffer will be updated accordingly."
 (defun cider-spy-hub-disconnect ()
   "Disconnect from CIDER-SPY-HUB."
   (interactive)
-
   (nrepl-send-request
    (list "op" "cider-spy-hub-disconnect"
          "session" (nrepl-current-session))
@@ -370,13 +369,8 @@ the current buffer will be updated accordingly."
 
 ;; cider-spy msg:
 
-(defvar cider-spy-msg-edit-buffer-name "*cider spy msg*"
-  "Buffer name for composing messages.")
-
 (defvar cider-spy-msg-popup-buffer-name-template "*hub %s*"
   "Buffer name for message popup.")
-
-(defvar cider-spy-edit-prev-window-configuration nil)
 
 (defvar cider-spy-recipient-id nil)
 
@@ -386,44 +380,32 @@ the current buffer will be updated accordingly."
 (defvar-local cider-spy-msg-input-start nil
   "Marker for the start of input.")
 
-(defun cider-spy-msg-edit (id alias)
-  (interactive)
-  (let ((buf (get-buffer-create cider-spy-msg-edit-buffer-name)))
-    (setq cider-spy-edit-prev-window-configuration
-          (current-window-configuration))
-    (setq cider-spy-recipient-id id)
-    (pop-to-buffer buf)
-    (erase-buffer)
-    (insert (format "## Send message to %s\n\n" alias))
-    (cider-spy-edit-mode)
-    (font-lock-fontify-buffer)
-    (message "Type C-c C-c to send (C-c C-k to cancel).")))
-
-(defun cider-spy-msg-from-edit-buffer ()
-  (interactive)
-  (with-current-buffer cider-spy-msg-edit-buffer-name
-    (save-excursion
-      (goto-char 0)
-      (re-search-forward "Send.*\n\n")
-      (buffer-substring-no-properties (match-end 0) (point-max)))))
-
-(defun cider-spy-msg-send ()
+(defun cider-spy-msg-send (recipient-id msg)
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-send-msg"
          "session" (nrepl-current-session)
-         "recipient" (symbol-name cider-spy-recipient-id)
-         "message" (cider-spy-msg-from-edit-buffer))
+         "recipient" (symbol-name recipient-id)
+         "message" msg)
    nil)
-  (message "Sent message to %s." cider-spy-recipient-id)
-  (cider-spy-msg-quit))
+  (message "Sent message to %s." cider-spy-recipient-id))
 
-(defun cider-spy-msg-quit ()
-  (interactive)
-  (kill-buffer (get-buffer cider-spy-msg-edit-buffer-name))
-  (when cider-spy-edit-prev-window-configuration
-    (set-window-configuration cider-spy-edit-prev-window-configuration)
-    (setq cider-spy-edit-prev-window-configuration nil)))
+(defun cider-spy-msg-reset-markers ()
+  "Reset all CIDER-SPY-MSG markers."
+  (dolist (markname '(cider-spy-msg-output-end
+                      cider-spy-msg-input-start))
+    (set markname (make-marker))
+    (set-marker (symbol-value markname) (point))))
+
+(defun cider-spy-msg-get-popup (from)
+  (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template from)))
+    (unless (get-buffer buffer-name)
+      (with-current-buffer (get-buffer-create buffer-name)
+        ;; Initialise message buffer
+        (cider-spy-popup-mode)
+        (cider-spy-msg-reset-markers)
+        (cider-spy-msg--insert-prompt)))
+    (get-buffer buffer-name)))
 
 (defun cider-spy-msg--insert-msg (from msg)
   "Insert the msg into msg buffer"
@@ -433,54 +415,35 @@ the current buffer will be updated accordingly."
   (insert msg)
   (insert "\n")
   (set-marker cider-spy-msg-output-end (point))
-  (goto-char (max-char)))
+  (goto-char (max-char))
+  (font-lock-fontify-buffer))
 
 (defun cider-spy-msg--insert-prompt ()
   "Insert a prompt into msg buffer"
+  (goto-char cider-spy-msg-output-end)
   (unless (bolp) (insert "\n"))
   (insert "Me >> ")
-  (set-marker cider-spy-msg-input-start (point)))
-
-(defun cider-spy-msg-reset-markers ()
-  "Reset all CIDER-SPY-MSG markers."
-  (dolist (markname '(cider-spy-msg-output-end
-                      cider-spy-msg-input-start))
-    (set markname (make-marker))
-    (set-marker (symbol-value markname) (point))))
-
-(defun cider-spy-msg-popup (from msg)
-  (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template from)))
-    (unless (get-buffer buffer-name)
-      (with-current-buffer (get-buffer-create buffer-name)
-        ;; Initialise message buffer
-        (cider-spy-popup-mode)
-        (cider-spy-msg-reset-markers)
-        (cider-spy-msg--insert-prompt)))
-    (with-current-buffer (get-buffer buffer-name)
-      (goto-char cider-spy-msg-output-end)
-      (cider-spy-msg--insert-msg from msg)
-      (font-lock-fontify-buffer))
-    (pop-to-buffer buffer-name)))
+  (set-marker cider-spy-msg-input-start (point))
+  (font-lock-fontify-buffer))
 
 (defun cider-spy-msg-return ()
   "Hit return to send a message to user."
-  ;; See cider-repl-return
-  ;; which promptly calls cider-repl--send-input
+  ;; Based on cider-repl-return which promptly calls cider-repl--send-input
   (interactive)
   (goto-char (point-max))
-  (message (buffer-substring cider-spy-msg-input-start (point)))
+  (cider-spy-msg-send cider-spy-recipient-id
+                      (buffer-substring cider-spy-msg-input-start (point)))
   (cider-spy-msg--insert-prompt))
 
-(defvar cider-spy-edit-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'cider-spy-msg-send)
-    (define-key map (kbd "C-c C-k") 'cider-spy-msg-quit)
-    map))
+(defun cider-spy-msg-popup (from msg)
+  (with-current-buffer (cider-spy-msg-get-popup from)
+    (cider-spy-msg--insert-msg from msg)))
 
-(define-derived-mode cider-spy-edit-mode text-mode "Cider Spy Edit")
-
-(font-lock-add-keywords 'cider-spy-edit-mode
-                        '(("## Send.*\n" . font-lock-comment-face)))
+(defun cider-spy-msg-edit (id alias)
+  (interactive)
+  (with-current-buffer (cider-spy-msg-get-popup alias)
+    (setq cider-spy-recipient-id id)
+    (pop-to-buffer (current-buffer))))
 
 (defvar cider-spy-popup-mode-map
   (let ((map (make-sparse-keymap)))
