@@ -359,8 +359,7 @@ the current buffer will be updated accordingly."
 (define-derived-mode cider-spy-buffer-mode cider-popup-buffer-mode
   "Cider-Spy"
   "Cider Spy Buffer Mode.
-\\{cider-spy-mode-buffer-mode-map}
-\\{cider-popup-buffer-mode-map}"
+\\{cider-spy-mode-buffer-mode-map}"
   (setq-local truncate-lines t))
 
 (font-lock-add-keywords 'cider-spy-buffer-mode
@@ -458,6 +457,15 @@ the current buffer will be updated accordingly."
       (font-lock-fontify-buffer))
     (pop-to-buffer buffer-name)))
 
+(defun cider-spy-msg-return ()
+  "Hit return to send a message to user."
+  ;; See cider-repl-return
+  ;; which promptly calls cider-repl--send-input
+  (interactive)
+  (goto-char (point-max))
+;;  (message (buffer-substring cider-spy-msg-input-start-mark end))
+  (cider-spy-msg--insert-prompt))
+
 (defvar cider-spy-edit-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'cider-spy-msg-send)
@@ -468,6 +476,11 @@ the current buffer will be updated accordingly."
 
 (font-lock-add-keywords 'cider-spy-edit-mode
                         '(("## Send.*\n" . font-lock-comment-face)))
+
+(defvar cider-spy-popup-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") 'cider-spy-msg-return)
+    map))
 
 (define-derived-mode cider-spy-popup-mode text-mode "Cider Spy Popup")
 
