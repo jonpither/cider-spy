@@ -414,8 +414,7 @@ the current buffer will be updated accordingly."
   (insert from)
   (insert " >> ")
   (insert msg)
-  (goto-char (max-char))
-  (font-lock-fontify-buffer))
+  (goto-char (max-char)))
 
 (defun cider-spy-msg--insert-prompt ()
   "Insert a prompt into msg buffer"
@@ -424,11 +423,13 @@ the current buffer will be updated accordingly."
   (unless (bolp) (insert "\n"))
   (insert "Me >> ")
   (set-marker cider-spy-msg-input-start (point))
-  (font-lock-fontify-buffer))
+  (let ((overlay (make-overlay cider-spy-msg-prompt-start
+                               cider-spy-msg-input-start)))
+    (overlay-put overlay 'read-only t)
+    (overlay-put overlay 'face 'font-lock-keyword-face)))
 
 (defun cider-spy-msg-return ()
   "Hit return to send a message to user."
-  ;; Based on cider-repl-return which promptly calls cider-repl--send-input
   (interactive)
   (goto-char (point-max))
   (let ((msg (buffer-substring cider-spy-msg-input-start (point))))
@@ -451,10 +452,6 @@ the current buffer will be updated accordingly."
     map))
 
 (define-derived-mode cider-spy-popup-mode text-mode "Cider Spy Popup")
-
-(font-lock-add-keywords 'cider-spy-popup-mode
-                        '(("^.*\s" . font-lock-keyword-face))
-                        '((">>" . font-lock-comment-face)))
 
 (provide 'cider-spy)
 
