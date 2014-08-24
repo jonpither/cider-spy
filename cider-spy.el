@@ -474,3 +474,38 @@ the current buffer will be updated accordingly."
 (provide 'cider-spy)
 
 ;;; cider-spy.el ends here
+
+
+;; What is goingon here:
+
+;; This does funky shit:
+
+;; (with-current-buffer (get-buffer-create "foo")
+;;   (process-file "git" nil t nil "diff-index" "HEAD")
+;;   (goto-char (point-min)))
+
+
+;; (magit-git-insert-section (staged "Staged changes:")
+;;             (apply-partially #'magit-wash-raw-diffs t)
+;;   "diff-index" "--cached" base)
+
+;; ;; git diff-index
+;; ;; Need funkage from magit-wash-diffs
+;; (defun foo-diff ()
+;;   (when (looking-at
+;;          ":\\([0-7]+\\) \\([0-7]+\\) [0-9a-f]+ [0-9a-f]+ \\(.\\)[0-9]*\t\\([^\t\n]+\\)$")
+;;     (let ((file (magit-decode-git-path (match-string-no-properties 4)))
+;;           (status (cl-ecase (string-to-char (match-string-no-properties 3))
+;;                     (?A 'new)
+;;                     (?C 'copy)
+;;                     (?D 'deleted)
+;;                     (?M 'modified)
+;;                     (?T 'typechange)
+;;                     (?U 'unmerged)
+;;                     (?X 'unknown))))
+;;       (list file status))))
+
+;; (with-current-buffer (get-buffer-create "foo")
+;;   (foo-diff)
+;;   (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
+;;     (message "sad")))
