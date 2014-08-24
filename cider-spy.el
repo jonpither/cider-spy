@@ -383,6 +383,9 @@ the current buffer will be updated accordingly."
 (defvar-local cider-spy-msg-output-end nil
   "Marker for the end of output.")
 
+(defvar-local cider-spy-msg-input-start nil
+  "Marker for the start of input.")
+
 (defun cider-spy-msg-edit (id alias)
   (interactive)
   (let ((buf (get-buffer-create cider-spy-msg-edit-buffer-name)))
@@ -435,11 +438,13 @@ the current buffer will be updated accordingly."
 (defun cider-spy-msg--insert-prompt ()
   "Insert a prompt into msg buffer"
   (unless (bolp) (insert "\n"))
-  (insert "Me >> "))
+  (insert "Me >> ")
+  (set-marker cider-spy-msg-input-start (point)))
 
 (defun cider-spy-msg-reset-markers ()
   "Reset all CIDER-SPY-MSG markers."
-  (dolist (markname '(cider-spy-msg-output-end))
+  (dolist (markname '(cider-spy-msg-output-end
+                      cider-spy-msg-input-start))
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
 
@@ -463,7 +468,7 @@ the current buffer will be updated accordingly."
   ;; which promptly calls cider-repl--send-input
   (interactive)
   (goto-char (point-max))
-;;  (message (buffer-substring cider-spy-msg-input-start-mark end))
+  (message (buffer-substring cider-spy-msg-input-start (point)))
   (cider-spy-msg--insert-prompt))
 
 (defvar cider-spy-edit-mode-map
