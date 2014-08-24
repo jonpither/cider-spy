@@ -411,9 +411,12 @@ the current buffer will be updated accordingly."
   "Insert the msg into msg buffer"
   (goto-char cider-spy-msg-prompt-start)
   (unless (bolp) (insert-before-markers "\n"))
-  (insert from)
-  (insert " >> ")
-  (insert msg)
+  (let ((prompt-start (point)))
+    (insert-before-markers from)
+    (insert-before-markers " >> ")
+    (let ((overlay (make-overlay prompt-start (- (point) 1))))
+      (overlay-put overlay 'face 'font-lock-keyword-face)))
+  (insert-before-markers msg)
   (goto-char (max-char)))
 
 (defun cider-spy-msg--insert-prompt ()
@@ -425,7 +428,6 @@ the current buffer will be updated accordingly."
   (set-marker cider-spy-msg-input-start (point))
   (let ((overlay (make-overlay cider-spy-msg-prompt-start
                                cider-spy-msg-input-start)))
-    (overlay-put overlay 'read-only t)
     (overlay-put overlay 'face 'font-lock-keyword-face)))
 
 (defun cider-spy-msg-return ()
