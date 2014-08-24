@@ -276,19 +276,20 @@ CIDER-SPY hub."
 (defun cider-spy-connect-to-hub ()
   "Connect to the CIDER-SPY-HUB"
   (interactive)
-  (nrepl-send-request
-   (append (list "op" "cider-spy-hub-connect"
-                 "session" (nrepl-current-session))
-           (when cider-spy-hub-alias
-             (list "hub-alias" cider-spy-hub-alias)))
-   (lambda (response)
-     (nrepl-dbind-response response (value err from msg)
-       (cond (msg
-              (cider-spy-msg-popup from msg))
-             (value
-              (cider-emit-into-popup-buffer (get-buffer-create "*cider spy hub*") (concat value "\n")))
-             (err
-              (cider-emit-into-popup-buffer (get-buffer-create "*cider spy hub*") (concat "OOPS\n" err "\n"))))))))
+  (lexical-let ((connection-buffer-name (generate-new-buffer-name "*cider spy hub*")))
+    (nrepl-send-request
+     (append (list "op" "cider-spy-hub-connect"
+                   "session" (nrepl-current-session))
+             (when cider-spy-hub-alias
+               (list "hub-alias" cider-spy-hub-alias)))
+     (lambda (response)
+       (nrepl-dbind-response response (value err from msg)
+         (cond (msg
+                (cider-spy-msg-popup from msg))
+               (value
+                (cider-emit-into-popup-buffer (get-buffer-create connection-buffer-name) (concat value "\n")))
+               (err
+                (cider-emit-into-popup-buffer (get-buffer-create connection-buffer-name) (concat "OOPS\n" err "\n")))))))))
 
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
