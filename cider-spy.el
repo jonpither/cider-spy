@@ -374,8 +374,8 @@ the current buffer will be updated accordingly."
 
 (defvar cider-spy-recipient-id nil)
 
-(defvar-local cider-spy-msg-output-end nil
-  "Marker for the end of output.")
+(defvar-local cider-spy-msg-prompt-start nil
+  "Marker for the start of prompt.")
 
 (defvar-local cider-spy-msg-input-start nil
   "Marker for the start of input.")
@@ -392,7 +392,7 @@ the current buffer will be updated accordingly."
 
 (defun cider-spy-msg-reset-markers ()
   "Reset all CIDER-SPY-MSG markers."
-  (dolist (markname '(cider-spy-msg-output-end
+  (dolist (markname '(cider-spy-msg-prompt-start
                       cider-spy-msg-input-start))
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
@@ -409,18 +409,18 @@ the current buffer will be updated accordingly."
 
 (defun cider-spy-msg--insert-msg (from msg)
   "Insert the msg into msg buffer"
+  (goto-char cider-spy-msg-prompt-start)
   (unless (bolp) (insert-before-markers "\n"))
   (insert from)
   (insert " >> ")
   (insert msg)
-  (insert "\n")
-  (set-marker cider-spy-msg-output-end (point))
   (goto-char (max-char))
   (font-lock-fontify-buffer))
 
 (defun cider-spy-msg--insert-prompt ()
   "Insert a prompt into msg buffer"
-  (goto-char cider-spy-msg-output-end)
+  (goto-char (max-char))
+  (set-marker cider-spy-msg-prompt-start (point))
   (unless (bolp) (insert "\n"))
   (insert "Me >> ")
   (set-marker cider-spy-msg-input-start (point))
@@ -431,9 +431,9 @@ the current buffer will be updated accordingly."
   ;; Based on cider-repl-return which promptly calls cider-repl--send-input
   (interactive)
   (goto-char (point-max))
-  (cider-spy-msg-send cider-spy-recipient-id
-                      (buffer-substring cider-spy-msg-input-start (point)))
-  (cider-spy-msg--insert-prompt))
+  (let ((msg (buffer-substring cider-spy-msg-input-start (point))))
+    (cider-spy-msg--insert-prompt)
+    (cider-spy-msg-send cider-spy-recipient-id msg)))
 
 (defun cider-spy-msg-popup (from msg)
   (with-current-buffer (cider-spy-msg-get-popup from)
