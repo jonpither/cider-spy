@@ -34,6 +34,9 @@ CIDER-SPY hub."
   :type 'string
   :group 'cider-spy)
 
+(defvar-local cider-spy-summary-buffer nil
+  "Current CIDER SPY SUMMARY BUFFER for nrepl-connection.")
+
 (cl-defstruct cider-spy-section-def
   type label extract-fn display-fn jump-fn)
 
@@ -307,12 +310,24 @@ the current buffer will be updated accordingly."
                            (cider-spy-refresh-buffer buffer "Oops"))
                          '()))))
 
-(defun cider-spy-summary ()
-  "Create *cider-spy* buffer and attach listener."
+(defun cider-spy-refresh-summary ()
+  "Refresh the cider spy summary buffer."
   (interactive)
-  (with-current-buffer (cider-popup-buffer "*cider spy*" t)
-    (cider-spy-buffer-mode)
-    (cider-spy-attach-nrepl-response-handler)))
+  (cider-spy-attach-nrepl-response-handler))
+
+(defun cider-spy-summary ()
+  "Create *cider-spy* buffer and attach listener.
+   We assign a cider-spy-summary buffer to the nrepl-connection-buffer."
+  (interactive)
+  (with-current-buffer (nrepl-current-connection-buffer)
+    (unless (and cider-spy-summary-buffer (buffer-name cider-spy-summary-buffer))
+      (let ((summary-buffer (get-buffer-create (generate-new-buffer-name "*cider spy*"))))
+        (with-current-buffer summary-buffer
+          (cider-spy-buffer-mode))
+        (setq cider-spy-summary-buffer summary-buffer)))
+    (with-current-buffer cider-spy-summary-buffer
+      (cider-spy-refresh-summary))
+    (pop-to-buffer cider-spy-summary-buffer)))
 
 (defun cider-spy-reset ()
   "Reset CIDER-SPY tracking used for *cider-spy* buffer."
@@ -345,7 +360,7 @@ the current buffer will be updated accordingly."
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map t)
-    (define-key map (kbd "g") 'cider-spy-summary)
+    (define-key map (kbd "g") 'cider-spy-refresh-summary)
     (define-key map (kbd "r") 'cider-spy-reset)
     (define-key map (kbd "n") 'cider-spy-next-section)
     (define-key map (kbd "p") 'cider-spy-previous-section)
