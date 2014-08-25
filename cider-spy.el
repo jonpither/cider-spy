@@ -288,7 +288,7 @@ CIDER-SPY hub."
      (lambda (response)
        (nrepl-dbind-response response (value err from msg)
          (cond (msg
-                (cider-spy-msg-popup from msg))
+                (cider-spy-msg-receive from msg))
                (value
                 (cider-emit-into-popup-buffer connection-buffer (concat value "\n")))
                (err
@@ -413,16 +413,6 @@ the current buffer will be updated accordingly."
     (set markname (make-marker))
     (set-marker (symbol-value markname) (point))))
 
-(defun cider-spy-msg-get-popup (from)
-  (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template from)))
-    (unless (get-buffer buffer-name)
-      (with-current-buffer (get-buffer-create buffer-name)
-        ;; Initialise message buffer
-        (cider-spy-popup-mode)
-        (cider-spy-msg-reset-markers)
-        (cider-spy-msg--insert-prompt)))
-    (get-buffer buffer-name)))
-
 (defun cider-spy-msg--insert-msg (from msg)
   "Insert the msg into msg buffer"
   (goto-char cider-spy-msg-prompt-start)
@@ -454,13 +444,23 @@ the current buffer will be updated accordingly."
     (cider-spy-msg--insert-prompt)
     (cider-spy-msg-send cider-spy-recipient-id msg)))
 
-(defun cider-spy-msg-popup (from msg)
-  (with-current-buffer (cider-spy-msg-get-popup from)
+(defun cider-spy-msg--get-popup (from)
+  (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template from)))
+    (unless (get-buffer buffer-name)
+      (with-current-buffer (get-buffer-create buffer-name)
+        ;; Initialise message buffer
+        (cider-spy-popup-mode)
+        (cider-spy-msg-reset-markers)
+        (cider-spy-msg--insert-prompt)))
+    (get-buffer buffer-name)))
+
+(defun cider-spy-msg-receive (from msg)
+  (with-current-buffer (cider-spy-msg--get-popup from)
     (cider-spy-msg--insert-msg from msg)))
 
 (defun cider-spy-msg-edit (id alias)
   (interactive)
-  (with-current-buffer (cider-spy-msg-get-popup alias)
+  (with-current-buffer (cider-spy-msg--get-popup alias)
     (setq cider-spy-recipient-id id)
     (pop-to-buffer (current-buffer))))
 
