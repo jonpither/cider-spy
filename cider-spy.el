@@ -272,7 +272,6 @@ CIDER-SPY hub."
     (cider-spy-with-section-at-point
      (when (eq 'dev (cider-spy-section-type section))
        (cider-spy-msg-edit my-alias
-                           (car (cider-spy-section-data section))
                            (cdr (assoc 'alias (cdr (cider-spy-section-data section)))))))))
 
 (defun cider-spy-visit-form ()
@@ -302,13 +301,10 @@ CIDER-SPY hub."
              (when cider-spy-hub-alias
                (list "hub-alias" cider-spy-hub-alias)))
      (lambda (response)
-       (nrepl-dbind-response response (value err from msg hub-registered-alias)
+       (nrepl-dbind-response response (value err from recipient msg hub-registered-alias)
          (cond (msg
                 ;; Received a message from another developer in the hub
-                (cider-spy-msg-receive
-                 (with-current-buffer connection-buffer
-                   cider-spy-hub-registered-alias)
-                 from msg))
+                (cider-spy-msg-receive recipient from msg))
                (hub-registered-alias
                 ;; Developer has become registered on the hub, this is their alias
                 (with-current-buffer connection-buffer
@@ -413,7 +409,7 @@ the current buffer will be updated accordingly."
 (defvar cider-spy-msg-popup-buffer-name-template "*hub %s*"
   "Buffer name for message popup.")
 
-(defvar-local cider-spy-msg-recipient-id nil
+(defvar-local cider-spy-msg-recipient nil
   "ID Recipient for msg.")
 
 (defvar-local cider-spy-msg-alias nil
@@ -425,16 +421,16 @@ the current buffer will be updated accordingly."
 (defvar-local cider-spy-msg-input-start nil
   "Marker for the start of input.")
 
-(defun cider-spy-msg-send (from recipient-id msg)
+(defun cider-spy-msg-send (from recipient msg)
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-send-msg"
          "session" (nrepl-current-session)
          "from" from
-         "recipient" (symbol-name recipient-id)
+         "recipient" recipient
          "message" msg)
    nil)
-  (message "Sent message to %s." recipient-id))
+  (message "Sent message from %s to %s." from recipient))
 
 (defun cider-spy-msg-reset-markers ()
   "Reset all CIDER-SPY-MSG markers."
@@ -472,15 +468,16 @@ the current buffer will be updated accordingly."
   (goto-char (point-max))
   (let ((msg (buffer-substring cider-spy-msg-input-start (point))))
     (cider-spy-msg--insert-prompt)
-    (cider-spy-msg-send cider-spy-msg-alias cider-spy-msg-recipient-id msg)))
+    (cider-spy-msg-send cider-spy-msg-alias cider-spy-msg-recipient msg)))
 
-(defun cider-spy-msg--get-popup (alias from)
-  (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template from)))
+(defun cider-spy-msg--get-popup (alias dev)
+  (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template dev)))
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
         ;; Initialise message buffer
         (cider-spy-popup-mode)
         (setq cider-spy-msg-alias alias)
+        (setq cider-spy-msg-recipient dev)
         (cider-spy-msg-reset-markers)
         (cider-spy-msg--insert-prompt)))
     (get-buffer buffer-name)))
@@ -490,11 +487,10 @@ the current buffer will be updated accordingly."
   (with-current-buffer (cider-spy-msg--get-popup alias sender)
     (cider-spy-msg--insert-msg from msg)))
 
-(defun cider-spy-msg-edit (alias id recipient)
+(defun cider-spy-msg-edit (alias recipient)
   "Start a new message to another developer in the HUB."
   (interactive)
   (with-current-buffer (cider-spy-msg--get-popup alias recipient)
-    (setq cider-spy-msg-recipient-id id)
     (pop-to-buffer (current-buffer))))
 
 (defvar cider-spy-popup-mode-map
