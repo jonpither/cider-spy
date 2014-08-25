@@ -291,30 +291,34 @@ CIDER-SPY hub."
      (when jump-fn
        (funcall jump-fn)))))
 
+(defvar cider-spy-request-counter 1000
+  "Continuation serial number counter.")
+
 (defun cider-spy-connect-to-hub ()
   "Connect to the CIDER-SPY-HUB"
   (interactive)
-  (lexical-let ((connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
+  (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
     (with-current-buffer (nrepl-current-connection-buffer)
-      (setq cider-spy-hub-connection-buffer connection-buffer))
-    (nrepl-send-request
-     (append (list "op" "cider-spy-hub-connect"
-                   "session" (nrepl-current-session))
-             (when cider-spy-hub-alias
-               (list "hub-alias" cider-spy-hub-alias)))
-     (lambda (response)
-       (nrepl-dbind-response response (value err from recipient msg hub-registered-alias)
-         (cond (msg
-                ;; Received a message from another developer in the hub
-                (cider-spy-msg-receive recipient from msg))
-               (hub-registered-alias
-                ;; Developer has become registered on the hub, this is their alias
-                (with-current-buffer connection-buffer
-                  (setq cider-spy-hub-registered-alias hub-registered-alias)))
-               (value
-                (cider-emit-into-popup-buffer connection-buffer (concat value "\n")))
-               (err
-                (cider-emit-into-popup-buffer connection-buffer (concat "OOPS\n" err "\n")))))))))
+      (setq cider-spy-hub-connection-buffer hub-connection-buffer)
+      (let ((nrepl-request-counter (incf cider-spy-request-counter)))
+        (nrepl-send-request
+         (append (list "op" "cider-spy-hub-connect"
+                       "session" nrepl-session)
+                 (when cider-spy-hub-alias
+                   (list "hub-alias" cider-spy-hub-alias)))
+         (lambda (response)
+           (nrepl-dbind-response response (value err from recipient msg hub-registered-alias)
+             (cond (msg
+                    ;; Received a message from another developer in the hub
+                    (cider-spy-msg-receive recipient from msg))
+                   (hub-registered-alias
+                    ;; Developer has become registered on the hub, this is their alias
+                    (with-current-buffer hub-connection-buffer
+                      (setq cider-spy-hub-registered-alias hub-registered-alias)))
+                   (value
+                    (cider-emit-into-popup-buffer hub-connection-buffer (concat value "\n")))
+                   (err
+                    (cider-emit-into-popup-buffer hub-connection-buffer (concat "OOPS\n" err "\n")))))))))))
 
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
