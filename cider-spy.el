@@ -208,7 +208,7 @@ CIDER-SPY hub."
           (-mapcat 'cider-spy-descendent-sections (cider-spy-section-children section))))
 
 (defun cider-spy-next-section (buffer)
-  (interactive (list (get-buffer "*cider spy*")))
+  (interactive (list (current-buffer)))
   (with-current-buffer buffer
     (let ((next-s (car (-filter (lambda (s)
                                   (and (cider-spy-section-beginning s)
@@ -219,7 +219,7 @@ CIDER-SPY hub."
         (goto-char (cider-spy-section-beginning next-s))))))
 
 (defun cider-spy-previous-section (buffer)
-  (interactive (list (get-buffer "*cider spy*")))
+  (interactive (list (current-buffer)))
   (with-current-buffer buffer
     (let ((next-s (car (-filter (lambda (s)
                                   (and (cider-spy-section-beginning s)
