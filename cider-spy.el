@@ -37,6 +37,15 @@ CIDER-SPY hub."
 (defvar-local cider-spy-summary-buffer nil
   "Current CIDER SPY SUMMARY BUFFER for nrepl-connection.")
 
+(defvar-local cider-spy-hub-connection-buffer nil
+  "Current CIDER SPY CONNECTION BUFFER for nrepl-connection.")
+
+(defvar-local cider-spy-summary-buffer-nrepl-connection nil
+  "Current nrepl-connection for CIDER SPY SUMMARY BUFFER.")
+
+(defvar-local cider-spy-hub-registered-alias nil
+  "The registered alias on the CIDER SPY HUB.")
+
 (cl-defstruct cider-spy-section-def
   type label extract-fn display-fn jump-fn)
 
@@ -256,10 +265,15 @@ CIDER-SPY hub."
 
 (defun cider-spy-send-to-dev ()
   (interactive)
-  (cider-spy-with-section-at-point
-   (when (eq 'dev (cider-spy-section-type section))
-     (cider-spy-msg-edit (car (cider-spy-section-data section))
-                         (cdr (assoc 'alias (cdr (cider-spy-section-data section))))))))
+  (let ((my-alias
+         (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+           (with-current-buffer cider-spy-hub-connection-buffer
+             cider-spy-hub-registered-alias))))
+    (cider-spy-with-section-at-point
+     (when (eq 'dev (cider-spy-section-type section))
+       (cider-spy-msg-edit my-alias
+                           (car (cider-spy-section-data section))
+                           (cdr (assoc 'alias (cdr (cider-spy-section-data section)))))))))
 
 (defun cider-spy-visit-form ()
   (cider-spy-with-section-at-point
@@ -280,15 +294,24 @@ CIDER-SPY hub."
   "Connect to the CIDER-SPY-HUB"
   (interactive)
   (lexical-let ((connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
+    (with-current-buffer (nrepl-current-connection-buffer)
+      (setq cider-spy-hub-connection-buffer connection-buffer))
     (nrepl-send-request
      (append (list "op" "cider-spy-hub-connect"
                    "session" (nrepl-current-session))
              (when cider-spy-hub-alias
                (list "hub-alias" cider-spy-hub-alias)))
      (lambda (response)
-       (nrepl-dbind-response response (value err from msg)
+       (nrepl-dbind-response response (value err from msg hub-registered-alias)
          (cond (msg
-                (cider-spy-msg-receive from msg))
+                ;; Received a message from another developer in the hub
+                (cider-spy-msg-receive
+                 (buffer-local-value cider-spy-hub-registered-alias connection-buffer)
+                 from msg))
+               (hub-registered-alias
+                ;; Developer has become registered on the hub, this is their alias
+                (with-current-buffer connection-buffer
+                  (setq cider-spy-hub-registered-alias hub-registered-alias)))
                (value
                 (cider-emit-into-popup-buffer connection-buffer (concat value "\n")))
                (err
@@ -323,6 +346,7 @@ the current buffer will be updated accordingly."
     (unless (and cider-spy-summary-buffer (buffer-name cider-spy-summary-buffer))
       (let ((summary-buffer (get-buffer-create (generate-new-buffer-name "*cider spy*"))))
         (with-current-buffer summary-buffer
+          (setq cider-spy-summary-buffer-nrepl-connection (nrepl-current-connection-buffer))
           (cider-spy-buffer-mode))
         (setq cider-spy-summary-buffer summary-buffer)))
     (with-current-buffer cider-spy-summary-buffer
@@ -388,7 +412,11 @@ the current buffer will be updated accordingly."
 (defvar cider-spy-msg-popup-buffer-name-template "*hub %s*"
   "Buffer name for message popup.")
 
-(defvar cider-spy-recipient-id nil)
+(defvar-local cider-spy-msg-recipient-id nil
+  "ID Recipient for msg.")
+
+(defvar-local cider-spy-msg-alias nil
+  "Alias of current developer used for messaging.")
 
 (defvar-local cider-spy-msg-prompt-start nil
   "Marker for the start of prompt.")
@@ -404,7 +432,7 @@ the current buffer will be updated accordingly."
          "recipient" (symbol-name recipient-id)
          "message" msg)
    nil)
-  (message "Sent message to %s." cider-spy-recipient-id))
+  (message "Sent message to %s." recipient-id))
 
 (defun cider-spy-msg-reset-markers ()
   "Reset all CIDER-SPY-MSG markers."
@@ -430,7 +458,7 @@ the current buffer will be updated accordingly."
   (goto-char (max-char))
   (set-marker cider-spy-msg-prompt-start (point))
   (unless (bolp) (insert "\n"))
-  (insert "Me >> ")
+  (insert (format "%s >> " cider-spy-msg-alias))
   (set-marker cider-spy-msg-input-start (point))
   (let ((overlay (make-overlay cider-spy-msg-prompt-start
                                cider-spy-msg-input-start)))
@@ -442,26 +470,29 @@ the current buffer will be updated accordingly."
   (goto-char (point-max))
   (let ((msg (buffer-substring cider-spy-msg-input-start (point))))
     (cider-spy-msg--insert-prompt)
-    (cider-spy-msg-send cider-spy-recipient-id msg)))
+    (cider-spy-msg-send cider-spy-msg-recipient-id msg)))
 
-(defun cider-spy-msg--get-popup (from)
+(defun cider-spy-msg--get-popup (alias from)
   (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template from)))
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
         ;; Initialise message buffer
         (cider-spy-popup-mode)
+        (setq cider-spy-msg-alias alias)
         (cider-spy-msg-reset-markers)
         (cider-spy-msg--insert-prompt)))
     (get-buffer buffer-name)))
 
-(defun cider-spy-msg-receive (from msg)
-  (with-current-buffer (cider-spy-msg--get-popup from)
+(defun cider-spy-msg-receive (alias sender msg)
+  "Receive a message from another developer in the HUB."
+  (with-current-buffer (cider-spy-msg--get-popup alias sender)
     (cider-spy-msg--insert-msg from msg)))
 
-(defun cider-spy-msg-edit (id alias)
+(defun cider-spy-msg-edit (alias id recipient)
+  "Start a new message to another developer in the HUB."
   (interactive)
-  (with-current-buffer (cider-spy-msg--get-popup alias)
-    (setq cider-spy-recipient-id id)
+  (with-current-buffer (cider-spy-msg--get-popup alias recipient)
+    (setq cider-spy-msg-recipient-id id)
     (pop-to-buffer (current-buffer))))
 
 (defvar cider-spy-popup-mode-map
