@@ -484,8 +484,10 @@ the current buffer will be updated accordingly."
 
 (defun cider-spy-msg-receive (alias sender msg)
   "Receive a message from another developer in the HUB."
+  (message "Received message from %s" alias)
   (with-current-buffer (cider-spy-msg--get-popup alias sender)
-    (cider-spy-msg--insert-msg from msg)))
+    (cider-spy-msg--insert-msg from msg)
+    (pop-to-buffer (current-buffer))))
 
 (defun cider-spy-msg-edit (alias recipient)
   "Start a new message to another developer in the HUB."
