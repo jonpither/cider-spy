@@ -449,6 +449,8 @@ the current buffer will be updated accordingly."
     (let ((overlay (make-overlay prompt-start (- (point) 1))))
       (overlay-put overlay 'face 'font-lock-keyword-face)))
   (insert-before-markers msg)
+  (when (not (eolp))
+    (insert "\n"))
   (goto-char (max-char)))
 
 (defun cider-spy-msg--insert-prompt ()
