@@ -88,8 +88,9 @@ CIDER-SPY hub."
 (defconst cider-spy-root-sections
   '(devs session nses-loaded ns-trail fns))
 
-(defvar-local cider-spy-root-section nil
-  "CIDER SPY sections are a hierarchy in the *CIDER-SPY-BUFFER*")
+(make-variable-buffer-local
+ (defvar cider-spy-root-section nil
+   "CIDER SPY sections are a hierarchy in the *CIDER-SPY-BUFFER*"))
 
 (cl-defstruct cider-spy-section
   type data beginning end hidden children)
@@ -410,17 +411,21 @@ the current buffer will be updated accordingly."
 (defvar cider-spy-msg-popup-buffer-name-template "*hub %s*"
   "Buffer name for message popup.")
 
-(defvar-local cider-spy-msg-recipient nil
-  "ID Recipient for msg.")
+(make-variable-buffer-local
+ (defvar cider-spy-msg-recipient nil
+   "ID Recipient for msg."))
 
-(defvar-local cider-spy-msg-alias nil
-  "Alias of current developer used for messaging.")
+(make-variable-buffer-local
+ (defvar cider-spy-msg-alias nil
+   "Alias of current developer used for messaging."))
 
-(defvar-local cider-spy-msg-prompt-start nil
-  "Marker for the start of prompt.")
+(make-variable-buffer-local
+ (defvar cider-spy-msg-prompt-start nil
+   "Marker for the start of prompt."))
 
-(defvar-local cider-spy-msg-input-start nil
-  "Marker for the start of input.")
+(make-variable-buffer-local
+ (defvar cider-spy-msg-input-start nil
+   "Marker for the start of input."))
 
 (defun cider-spy-msg-send (from recipient msg)
   (interactive)
