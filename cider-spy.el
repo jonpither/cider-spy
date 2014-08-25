@@ -6,7 +6,7 @@
 ;; URL: http://www.github.com/jonpither/cider-spy
 ;; Version: 0.1.0
 ;; Keywords: languages, clojure, cider, nrepl
-;; Package-Requires: ((cider "0.5.0"))
+;; Package-Requires: ((cider "0.5.0") (dash "2.5.0") (cl-lib "0.5"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 (require 'nrepl-client)
 (require 'json)
 (require 'dash)
+(require 'cl-lib)
 
 (defcustom cider-spy-hub-alias nil
   "Set `cider-spy-hub-alias' for a handle to identify REPL session owner in the
