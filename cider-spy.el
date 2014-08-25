@@ -306,7 +306,8 @@ CIDER-SPY hub."
          (cond (msg
                 ;; Received a message from another developer in the hub
                 (cider-spy-msg-receive
-                 (buffer-local-value cider-spy-hub-registered-alias connection-buffer)
+                 (with-current-buffer connection-buffer
+                   cider-spy-hub-registered-alias)
                  from msg))
                (hub-registered-alias
                 ;; Developer has become registered on the hub, this is their alias
