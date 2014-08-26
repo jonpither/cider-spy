@@ -1,7 +1,5 @@
 _THIS PROJECT IS IN ACTIVE DEVELOPMENT. It's not ready for general use but will be soon._
 
-# CIDER Spy
-
 [![Build Status](https://travis-ci.org/jonpither/cider-spy.svg?branch=master)](https://travis-ci.org/jonpither/cider-spy)
 
 Get visibility on CIDER nREPL sessions and help developers in teams to share information, send code snippets and text exchanges to each other etc.
@@ -47,8 +45,6 @@ Give yourself an alias on the hub:
 # Keyboard Shortcuts
 
 These shortcuts are available on the `CIDER-SPY` summary buffer:
-
-### cider-spy-mode
 
 Keyboard shortcut                    | Description
 -------------------------------------|-------------------------------
