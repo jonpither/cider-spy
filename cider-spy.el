@@ -84,6 +84,13 @@
 
 ;;; Code:
 
+(defgroup cider-spy nil
+  "Accompaniment to CIDER allowing developers to share information."
+  :prefix "cider-spy"
+  :group 'applications
+  :link '(url-link :tag "Github" "https://github.com/jonpither/cider-spy")
+  :link '(emacs-commentary-link :tag "Commentary" "cider-spy"))
+
 (require 'cider-interaction)
 (require 'nrepl-client)
 (require 'json)
@@ -96,17 +103,21 @@ CIDER-SPY hub."
   :type 'string
   :group 'cider-spy)
 
-(defvar-local cider-spy-summary-buffer nil
-  "Current CIDER SPY SUMMARY BUFFER for nrepl-connection.")
+(make-variable-buffer-local
+ (defvar cider-spy-summary-buffer nil
+   "Current CIDER SPY SUMMARY BUFFER for nrepl-connection."))
 
-(defvar-local cider-spy-hub-connection-buffer nil
-  "Current CIDER SPY CONNECTION BUFFER for nrepl-connection.")
+(make-variable-buffer-local
+ (defvar cider-spy-hub-connection-buffer nil
+   "Current CIDER SPY CONNECTION BUFFER for nrepl-connection."))
 
-(defvar-local cider-spy-summary-buffer-nrepl-connection nil
-  "Current nrepl-connection for CIDER SPY SUMMARY BUFFER.")
+(make-variable-buffer-local
+ (defvar cider-spy-summary-buffer-nrepl-connection nil
+   "Current nrepl-connection for CIDER SPY SUMMARY BUFFER."))
 
-(defvar-local cider-spy-hub-registered-alias nil
-  "The registered alias on the CIDER SPY HUB.")
+(make-variable-buffer-local
+ (defvar cider-spy-hub-registered-alias nil
+   "The registered alias on the CIDER SPY HUB."))
 
 (cl-defstruct cider-spy-section-def
   type label extract-fn display-fn jump-fn)
