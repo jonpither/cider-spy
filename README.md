@@ -4,43 +4,49 @@ _THIS PROJECT IS IN ACTIVE DEVELOPMENT. It's not ready for general use but will 
 
 [![Build Status](https://travis-ci.org/jonpither/cider-spy.svg?branch=master)](https://travis-ci.org/jonpither/cider-spy)
 
-Get visibility on CIDER nREPL sessions and help developers in teams to share information, send code snippets to each other etc.
+Get visibility on CIDER nREPL sessions and help developers in teams to share information, send code snippets and text exchanges to each other etc.
 
 # Installation
 
 ## Prerequisites
 
-You need the [`CIDER-SPY-NREPL`](https://github.com/jonpither/cider-spy-nrepl) middleware. See installation instructions there. `CIDER-SPY` also depends on [`CIDER`](https://github.com/clojure-emacs/cider).
+You need the [`CIDER-SPY-NREPL`](https://github.com/jonpither/cider-spy-nrepl) middleware. See installation instructions there.
 
-If you want the developer interactivity behavours, then you need a run a `CIDER-SPY-HUB`. See the middleware documentation for how to set one up. It's trivial enough.
+## Basic configuration
 
-## Configuration
+It's available on [melpa](http://melpa.milkbox.net/):
 
-You can use `CIDER-SPY` without configuring it any further
-to get summary information about your own REPL session.
+    M-x package-install cider-spy
 
-Configuration is needed if you want to connect to a `CIDER-SPY-HUB` to interact with your
-colleagues, to view where they are, and to to exchange messaging etc.
+You can also install the dependencies on your own, and just dump
+clj-refactor in your path somewhere:
 
-### Basic configuration
+ - <a href="https://github.com/magnars/dash.el">dash.el</a>
+ - <a href="https://github.com/clojure-emacs/cider">cider</a>
 
-* Add `CIDER-SPY` middleware to your project:
+## Setup
 
-    :profiles {:dev {:dependencies [[cider-spy/cider-spy-nrepl "0.1.0-SNAPSHOT"]]
-                       :repl-options {:nrepl-middleware [cider-spy-nrepl.middleware.cider-spy/wrap-cider-spy]}}}`
+    (require 'cider-spy)
 
+All actions in `CIDER-SPY` are triggered from the `CIDER-SPY` summary page. To access the summary page:
+
+    M-x cider-spy-summary
+
+It can be useful to setup a global binding for the summary page for frequent access, such as <kbd>C-c C-s</kbd>.
 
 ### Basic configuration for HUB
 
-* Ensure the HUB and HUB middleware is [configured correctly](https://github.com/jonpither/cider-spy-nrepl).
+If you want the developer interactivity behavours then you need a run a `CIDER-SPY-HUB`. See the documentation for how to set one up.
 
-* Give yourself an alias on the hub.
+Give yourself an alias on the hub:
 
 ```el
 (setq cider-spy-hub-alias "my-alias")
 ```
 
 # Keyboard Shortcuts
+
+These shortcuts are available on the `CIDER-SPY` summary buffer:
 
 ### cider-spy-mode
 
