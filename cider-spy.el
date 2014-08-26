@@ -402,6 +402,7 @@ the current buffer will be updated accordingly."
   (interactive)
   (cider-spy-attach-nrepl-response-handler))
 
+;;;###autoload
 (defun cider-spy-summary ()
   "Create *cider-spy* buffer and attach listener.
    We assign a cider-spy-summary buffer to the nrepl-connection-buffer."
