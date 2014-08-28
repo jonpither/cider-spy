@@ -366,6 +366,20 @@ CIDER-SPY hub."
 (defvar cider-spy-request-counter 1000
   "Continuation serial number counter.")
 
+(defun cider-spy--dev-registered (hub-connection-buffer hub-registered-alias)
+  "Developer has become registered on the hub, this is their alias"
+  (with-current-buffer hub-connection-buffer
+    (setq cider-spy-hub-registered-alias hub-registered-alias)))
+
+(defun cider-spy-connection-buffer-emit (buffer value)
+  "Emit into BUFFER the provided VALUE."
+  (with-current-buffer buffer
+    (let ((inhibit-read-only t))
+      (goto-char (max-char))
+      (unless (bolp) (insert "\n"))
+      (insert (format "%s" value)))))
+
+;;;###autoload
 (defun cider-spy-connect-to-hub ()
   "Connect to the CIDER-SPY-HUB"
   (interactive)
@@ -384,13 +398,11 @@ CIDER-SPY hub."
                     ;; Received a message from another developer in the hub
                     (cider-spy-msg-receive recipient from msg))
                    (hub-registered-alias
-                    ;; Developer has become registered on the hub, this is their alias
-                    (with-current-buffer hub-connection-buffer
-                      (setq cider-spy-hub-registered-alias hub-registered-alias)))
+                    (cider-spy--dev-registered hub-connection-buffer hub-registered-alias))
                    (value
-                    (cider-emit-into-popup-buffer hub-connection-buffer (concat value "\n")))
+                    (cider-spy-connection-buffer-emit hub-connection-buffer (concat value "\n")))
                    (err
-                    (cider-emit-into-popup-buffer hub-connection-buffer (concat "OOPS\n" err "\n")))))))))))
+                    (cider-spy-connection-buffer-emit hub-connection-buffer (concat "OOPS\n" err "\n")))))))))))
 
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
