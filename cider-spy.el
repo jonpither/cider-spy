@@ -96,6 +96,7 @@
 (require 'json)
 (require 'dash)
 (require 'cl-lib)
+(require 'bookmark)
 
 (defcustom cider-spy-hub-alias nil
   "Set `cider-spy-hub-alias' for a handle to identify REPL session owner in the
@@ -592,9 +593,29 @@ the current buffer will be updated accordingly."
   (with-current-buffer (cider-spy-msg--get-popup alias recipient)
     (pop-to-buffer (current-buffer))))
 
+(defun cider-spy-msg--pointer-from-bm (bm)
+  "Extract a file path relative to a project directory from a bookmark.
+   For example ~/proja/src/foo.clj -> src/foo.clj"
+  (let* ((filename (cdr (assoc 'filename bm)))
+         (bm-file (file-relative-name filename
+                                      (locate-dominating-file filename "project.clj"))))
+    (format "Pointer: filename %s, position %s"
+            bm-file (cdr (assoc 'position bm)))))
+
+(defun cider-spy-msg-send-bookmark ()
+  "Send a bookmark to another developer."
+  (interactive)
+  (let* ((bm (cdr (bookmark-get-bookmark
+                   (completing-read "Choose bookmark: " bookmark-alist nil t))))
+         (pointer (cider-spy-msg--pointer-from-bm bm)))
+    (goto-char (point-max))
+    (insert pointer)
+    (cider-spy-msg-return)))
+
 (defvar cider-spy-popup-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "RET") 'cider-spy-msg-return)
+    (define-key map (kbd "C-c C-b") 'cider-spy-msg-send-bookmark)
     map))
 
 (define-derived-mode cider-spy-popup-mode text-mode "Cider Spy Popup")
