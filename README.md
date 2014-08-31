@@ -2,7 +2,9 @@ _THIS PROJECT IS IN ACTIVE DEVELOPMENT. It's not ready for general use but will 
 
 [![Build Status](https://travis-ci.org/jonpither/cider-spy.svg?branch=master)](https://travis-ci.org/jonpither/cider-spy)
 
-Get visibility on CIDER nREPL sessions and help developers in teams to share information, send code snippets and text exchanges to each other etc.
+Get visibility on CIDER nREPL sessions and help developers in teams to share information.
+
+Use CIDER-SPY to send code snippets and text exchanges to each other etc, as well as EMACS bookmarks.
 
 # Installation
 
@@ -57,6 +59,14 @@ Keyboard shortcut                    | Description
 <kbd>d</kbd>| Disconnect from the `CIDER-SPY-HUB`.
 <kbd>RETURN</kbd>| Visit section.
 <kbd>TAB</kbd>| Toggle section visibility.
+
+# Keyboard Shortcuts
+
+These shortcuts are available on the `CIDER-SPY-MSG` buffer:
+
+Keyboard shortcut                    | Description
+-------------------------------------|-------------------------------
+<kbd>C-c C-b</kbd>| Choose and send bookmark to developer.
 
 # Background
 
