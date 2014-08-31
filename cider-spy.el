@@ -536,15 +536,20 @@ the current buffer will be updated accordingly."
     (set-marker (symbol-value markname) (point))))
 
 (defun cider-spy-msg--insert-msg (from msg)
-  "Insert the msg into msg buffer"
+  "Insert the msg into msg buffer.
+   We use overlays to keep track of where the prompt and msg are,
+   and for setting font locks."
   (goto-char cider-spy-msg-prompt-start)
   (unless (bolp) (insert-before-markers "\n"))
   (let ((prompt-start (point)))
     (insert-before-markers from)
     (insert-before-markers " >> ")
-    (insert-before-markers msg)
-    (let ((overlay (make-overlay prompt-start (point))))
-      (overlay-put overlay 'face 'font-lock-keyword-face)))
+    (let ((msg-start (point)))
+      (insert-before-markers msg)
+      (let ((overlay (make-overlay prompt-start msg-start)))
+        (overlay-put overlay 'face 'font-lock-keyword-face))
+      (let ((overlay (make-overlay msg-start (point))))
+        (overlay-put overlay 'face 'font-lock-keyword-face))))
   (when (not (eolp))
     (insert "\n"))
   (goto-char (max-char)))
@@ -560,13 +565,51 @@ the current buffer will be updated accordingly."
                                cider-spy-msg-input-start)))
     (overlay-put overlay 'face 'font-lock-keyword-face)))
 
+(defun cider-spy-msg--pointer-to-bookmark (pointer-str)
+  "Convert a pointer to a bookmark."
+  (when (string-prefix-p "Pointer:" pointer-str)
+    (-map (lambda (bm-component)
+            (let ((cmpt (split-string bm-component " ")))
+              (cons (car cmpt) (cadr cmpt))))
+          (split-string
+           (cadr (split-string pointer-str ": "))
+           ", "))))
+
+(defun cider-spy-msg--match-project-to-relative-path (relative-file)
+  (car (-filter 'file-exists-p
+                (-map (lambda (conn)
+                        (concat
+                         (file-relative-name
+                          (with-current-buffer (get-buffer conn)
+                            nrepl-project-dir)
+                          ) "/" relative-file))
+                      nrepl-connection-list))))
+
+(defun cider-spy-msg-jump-to-bookmark ()
+  "Jump to bookmark in chat buffer."
+  (interactive)
+  (let* ((overlay (first (overlays-at (point))))
+         (overlay-string (buffer-substring-no-properties
+                            (overlay-start overlay)
+                            (overlay-end overlay)))
+         (bm (cider-spy-msg--pointer-to-bookmark overlay-string))
+         (filename (cider-spy-msg--match-project-to-relative-path
+                    (cdr (assoc "filename" bm)))))
+    (bookmark-jump
+     (list "Cider-Spy"
+           (cons 'filename filename)
+           (cons 'position (string-to-int (cdr (assoc "position" bm))))))))
+
 (defun cider-spy-msg-return ()
   "Hit return to send a message to user."
   (interactive)
-  (goto-char (point-max))
-  (let ((msg (buffer-substring cider-spy-msg-input-start (point))))
-    (cider-spy-msg--insert-prompt)
-    (cider-spy-msg-send cider-spy-msg-alias cider-spy-msg-recipient msg)))
+  (if (first (overlays-at (point)))
+      (cider-spy-msg-jump-to-bookmark)
+    (progn
+      (goto-char (point-max))
+      (let ((msg (buffer-substring cider-spy-msg-input-start (point))))
+        (cider-spy-msg--insert-prompt)
+        (cider-spy-msg-send cider-spy-msg-alias cider-spy-msg-recipient msg)))))
 
 (defun cider-spy-msg--get-popup (alias dev)
   (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template dev)))
