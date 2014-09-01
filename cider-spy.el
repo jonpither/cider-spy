@@ -335,7 +335,7 @@ CIDER-SPY hub."
 
 (defun cider-spy-visit-ns ()
   (cider-spy-with-section-at-point
-   (cider-jump-to-def
+   (cider-jump-to-var
     (cdr (assoc 'ns (cider-spy-section-data section))))))
 
 (defun cider-spy-send-to-dev ()
@@ -351,8 +351,8 @@ CIDER-SPY hub."
 
 (defun cider-spy-visit-form ()
   (cider-spy-with-section-at-point
-   (cider-jump-to-def
-    (car (cider-spy-section-data section)))))
+   (cider-jump-to-var
+    (symbol-name (car (cider-spy-section-data section))))))
 
 (defun cider-spy-visit-section ()
   (interactive)
