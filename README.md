@@ -6,6 +6,8 @@ Get visibility on CIDER nREPL sessions and help developers in teams to share inf
 
 Use CIDER-SPY to send code snippets and text exchanges to each other etc, as well as EMACS bookmarks.
 
+See [a recent screencast](https://skillsmatter.com/skillscasts/5714-introducing-cider-spy).
+
 # Installation
 
 ## Prerequisites
