@@ -494,7 +494,7 @@ the current buffer will be updated accordingly."
                         '(("Your .*:" . font-lock-function-name-face)
                           ("Devs Hacking:" . font-lock-keyword-face)))
 
-(add-hook 'cider-repl-mode-hook 'cider-spy-connect-to-hub)
+(add-hook 'nrepl-connected-hook 'cider-spy-connect-to-hub)
 
 ;; cider-spy msg:
 
