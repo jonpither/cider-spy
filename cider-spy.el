@@ -97,6 +97,8 @@
 (require 'dash)
 (require 'cl-lib)
 (require 'bookmark)
+(eval-when-compile
+  (require 'cl))
 
 (defcustom cider-spy-hub-alias nil
   "Set `cider-spy-hub-alias' for a handle to identify REPL session owner in the
