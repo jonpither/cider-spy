@@ -387,7 +387,7 @@ CIDER-SPY hub."
   (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
     (with-current-buffer (cider-default-connection)
       (setq cider-spy-hub-connection-buffer hub-connection-buffer)
-      (let ((nrepl-request-counter (incf cider-spy-request-counter)))
+      (let ((nrepl-request-counter (cl-incf cider-spy-request-counter)))
         (nrepl-send-request
          (append (list "op" "cider-spy-hub-connect"
                        "session" nrepl-session)
@@ -588,7 +588,7 @@ the current buffer will be updated accordingly."
 (defun cider-spy-msg-jump-to-bookmark ()
   "Jump to bookmark in chat buffer."
   (interactive)
-  (let* ((overlay (first (overlays-at (point))))
+  (let* ((overlay (cl-first (overlays-at (point))))
          (overlay-string (buffer-substring-no-properties
                             (overlay-start overlay)
                             (overlay-end overlay)))
@@ -603,7 +603,7 @@ the current buffer will be updated accordingly."
 (defun cider-spy-msg-return ()
   "Hit return to send a message to user."
   (interactive)
-  (if (first (overlays-at (point)))
+  (if (cl-first (overlays-at (point)))
       (cider-spy-msg-jump-to-bookmark)
     (progn
       (goto-char (point-max))
