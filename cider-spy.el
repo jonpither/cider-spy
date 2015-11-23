@@ -97,6 +97,8 @@
 (require 'dash)
 (require 'cl-lib)
 (require 'bookmark)
+(eval-when-compile
+  (require 'cl))
 
 (defcustom cider-spy-hub-alias nil
   "Set `cider-spy-hub-alias' for a handle to identify REPL session owner in the
@@ -181,7 +183,7 @@ CIDER-SPY hub."
 
 (defun cider-spy-section-session (cider-spy-section section-data)
   "Display info about session."
-  (insert-string
+  (insert
    (format "\n  Started %s, uptime: %s seconds."
            (cdr (assoc 'started section-data))
            (cdr (assoc 'seconds section-data)))))
@@ -191,10 +193,10 @@ CIDER-SPY hub."
   (let ((section-data (mapcar 'identity section-data)))
     (when section-data
       (dolist (m section-data)
-        (insert-string "\n")
+        (insert "\n")
         (cider-spy-with-section
          cider-spy-section 'ns-breadcrumb m
-         (insert-string
+         (insert
           (format "%s (%s)"
                   (cdr (assoc 'ns m))
                   (let ((seconds (cdr (assoc 'seconds m))))
@@ -216,10 +218,10 @@ CIDER-SPY hub."
 
 (defun cider-spy-section-frequencies (cider-spy-section section-data child-type)
   (dolist (s (cider-spy-section-extract-freqencies section-data))
-    (insert-string "\n")
+    (insert "\n")
     (cider-spy-with-section
      cider-spy-section child-type s
-     (insert-string (cider-spy-section-frequency s))
+     (insert (cider-spy-section-frequency s))
      (indent-region
       (cider-spy-section-beginning spy-section)
       (max-char) 2))))
@@ -232,10 +234,10 @@ CIDER-SPY hub."
 
 (defun cider-spy-section-devs (cider-spy-section section-data)
   (dolist (s (mapcar 'identity section-data))
-    (insert-string "\n")
+    (insert "\n")
     (cider-spy-with-section
      cider-spy-section 'dev s
-     (insert-string
+     (insert
       (format "%s: %s" (cdr (assoc 'alias (cdr s))) (cdr (assoc 'nses (cdr s)))))
      (indent-region
       (cider-spy-section-beginning spy-section)
@@ -260,13 +262,13 @@ CIDER-SPY hub."
              (section-data (and section (cdr section))))
         (when (car (mapcar 'identity section-data))
           (when (> (point) 1)
-            (insert-string "\n"))
+            (insert "\n"))
           (cider-spy-with-section
            cider-spy-root-section (cider-spy-section-def-type section-def) section-data
-           (insert-string (cider-spy-section-def-label section-def))
+           (insert (cider-spy-section-def-label section-def))
            (funcall (cider-spy-section-def-display-fn section-def)
                     spy-section section-data)
-           (insert-string "\n")))))))
+           (insert "\n")))))))
 
 (defun cider-spy-refresh-buffer (buffer str)
   "Update the cider spy popup buffer, wiping it first."
@@ -335,7 +337,7 @@ CIDER-SPY hub."
 
 (defun cider-spy-visit-ns ()
   (cider-spy-with-section-at-point
-   (cider-jump-to-var
+   (cider-find-var
     (cdr (assoc 'ns (cider-spy-section-data section))))))
 
 (defun cider-spy-send-to-dev ()
@@ -351,7 +353,7 @@ CIDER-SPY hub."
 
 (defun cider-spy-visit-form ()
   (cider-spy-with-section-at-point
-   (cider-jump-to-var
+   (cider-find-var
     (symbol-name (car (cider-spy-section-data section))))))
 
 (defun cider-spy-visit-section ()
@@ -385,9 +387,9 @@ CIDER-SPY hub."
   "Connect to the CIDER-SPY-HUB"
   (interactive)
   (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
-    (with-current-buffer (nrepl-current-connection-buffer)
+    (with-current-buffer (cider-default-connection)
       (setq cider-spy-hub-connection-buffer hub-connection-buffer)
-      (let ((nrepl-request-counter (incf cider-spy-request-counter)))
+      (let ((nrepl-request-counter (cl-incf cider-spy-request-counter)))
         (nrepl-send-request
          (append (list "op" "cider-spy-hub-connect"
                        "session" nrepl-session)
@@ -411,7 +413,7 @@ When a response comes from nREPL relevant to the CIDER-SPY summary operation,
 the current buffer will be updated accordingly."
   (let ((buffer (current-buffer)))
     (nrepl-send-request (list "op" "cider-spy-summary"
-                              "session" (nrepl-current-session))
+                              "session" (cider-current-session))
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)
@@ -431,11 +433,11 @@ the current buffer will be updated accordingly."
   "Create *cider-spy* buffer and attach listener.
    We assign a cider-spy-summary buffer to the nrepl-connection-buffer."
   (interactive)
-  (with-current-buffer (nrepl-current-connection-buffer)
+  (with-current-buffer (cider-default-connection)
     (unless (and cider-spy-summary-buffer (buffer-name cider-spy-summary-buffer))
       (let ((summary-buffer (get-buffer-create (generate-new-buffer-name "*cider spy*"))))
         (with-current-buffer summary-buffer
-          (setq cider-spy-summary-buffer-nrepl-connection (nrepl-current-connection-buffer))
+          (setq cider-spy-summary-buffer-nrepl-connection (cider-default-connection))
           (cider-spy-buffer-mode))
         (setq cider-spy-summary-buffer summary-buffer)))
     (with-current-buffer cider-spy-summary-buffer
@@ -448,7 +450,7 @@ the current buffer will be updated accordingly."
 
   (nrepl-send-request
    (list "op" "cider-spy-reset"
-         "session" (nrepl-current-session))
+         "session" (cider-current-session))
    nil))
 
 (defun cider-spy-alias ()
@@ -458,7 +460,7 @@ the current buffer will be updated accordingly."
   (let ((alias (read-string "Set Alias: ")))
     (nrepl-send-request
      (list "op" "cider-spy-hub-alias"
-           "session" (nrepl-current-session)
+           "session" (cider-current-session)
            "alias" alias)
      nil)))
 
@@ -467,7 +469,7 @@ the current buffer will be updated accordingly."
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-disconnect"
-         "session" (nrepl-current-session))
+         "session" (cider-current-session))
    nil))
 
 (defvar cider-spy-buffer-mode-map
@@ -521,7 +523,7 @@ the current buffer will be updated accordingly."
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-send-msg"
-         "session" (nrepl-current-session)
+         "session" (cider-current-session)
          "from" from
          "recipient" recipient
          "message" msg)
@@ -588,7 +590,7 @@ the current buffer will be updated accordingly."
 (defun cider-spy-msg-jump-to-bookmark ()
   "Jump to bookmark in chat buffer."
   (interactive)
-  (let* ((overlay (first (overlays-at (point))))
+  (let* ((overlay (cl-first (overlays-at (point))))
          (overlay-string (buffer-substring-no-properties
                             (overlay-start overlay)
                             (overlay-end overlay)))
@@ -598,12 +600,12 @@ the current buffer will be updated accordingly."
     (bookmark-jump
      (list "Cider-Spy"
            (cons 'filename filename)
-           (cons 'position (string-to-int (cdr (assoc "position" bm))))))))
+           (cons 'position (string-to-number (cdr (assoc "position" bm))))))))
 
 (defun cider-spy-msg-return ()
   "Hit return to send a message to user."
   (interactive)
-  (if (first (overlays-at (point)))
+  (if (cl-first (overlays-at (point)))
       (cider-spy-msg-jump-to-bookmark)
     (progn
       (goto-char (point-max))
