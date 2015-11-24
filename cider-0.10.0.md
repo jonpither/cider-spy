@@ -18,6 +18,10 @@ There is a cider-client that wraps nrepl-client. So there is a wrapped for `nrep
 
 My code is messing around with `(cider-default-connection)`.
 
+## Middleware
+
+The middleware just isn't being called. Difficult to know if it's a client side problem (elisp) or server-side (middleware).
+
 ## Remember CIDER-SPY
 
 `cider-spy-connect-to-hub` is called when an nrepl-connection is established.
