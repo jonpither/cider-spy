@@ -22,6 +22,10 @@ My code is messing around with `(cider-default-connection)`.
 
 The middleware just isn't being called. Difficult to know if it's a client side problem (elisp) or server-side (middleware).
 
+Could be we're passing the wrong buffer through to send-request, i.e. the REPL buffer as oppose to the connection buffer. Not really, seems that's the way CIDER rolls now, `cider-default-connection` just returns the REPL buffer.
+
+Tracked the problem down, the `session` in the message is an atom, not a string. Asking on the CIDER channel.
+
 ## Remember CIDER-SPY
 
 `cider-spy-connect-to-hub` is called when an nrepl-connection is established.
