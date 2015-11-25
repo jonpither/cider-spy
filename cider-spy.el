@@ -475,6 +475,17 @@ the current buffer will be updated accordingly."
          "session" (cider-current-session))
    nil))
 
+(defun cider-spy-kill-buffers ()
+  "Kill all CIDER-SPY buffers"
+  (interactive)
+  (let ((killed-names))
+    (dolist (buffer (buffer-list))
+      (let ((name (buffer-name buffer)))
+        (when (string-match "^\\*cider spy" name)
+          (kill-buffer name)
+          (setq killed-names (cons name killed-names)))))
+    (message "Killed buffers%s" (mapconcat 'identity killed-names ", "))))
+
 (defvar cider-spy-buffer-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map t)
