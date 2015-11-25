@@ -454,7 +454,8 @@ the current buffer will be updated accordingly."
   (nrepl-send-request
    (list "op" "cider-spy-reset"
          "session" (cider-current-session))
-   nil))
+   nil
+   cider-spy-summary-buffer-nrepl-connection))
 
 (defun cider-spy-alias ()
   "Reset CIDER-SPY tracking used for *cider-spy* buffer."
