@@ -59,6 +59,72 @@ SOLVED - was the session atom requires vars as keywords.
 
 And randomly disapearing stuff being tracking... Hmm - I think this is the good ol' fashioned nrepl session tooling thing?
 
+Giving up for now.
+
+Theory is that there's some cleverness to avoid running tooling sessions through nrepl-middleware. My cider-spy stuff is ending up on the wrong session, hence ops like eval aren't being called.
+
+Server buffer:
+
+
+````
+Here describe
+Here version
+Here cider-spy-hub-connect
+Here warm-ast-cache
+Here artifact-list
+````
+
+Repl Buffer:
+
+````
+Here cider-spy-hub-connect
+Here artifact-list
+Here warm-ast-cache
+````
+
+### Working
+
+Server Buffer
+
+````
+nREPL server started on port 61002 on host 127.0.0.1 - nrepl://127.0.0.1:61002
+Here describe
+Here eval
+{:op eval, :code (str *ns*), :id 4, :transport #object[clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613 0x22453dd2 clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613@22453dd2]}
+Here eval
+{:op eval, :code (when (clojure.core/resolve 'clojure.main/repl-requires)
+      (clojure.core/map clojure.core/require clojure.main/repl-requires)), :id 5, :transport #object[clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613 0x243898e0 clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613@243898e0]}
+Here eval
+{:op eval, :code (try
+      (require 'cider.nrepl.version)
+      (:version-string @(resolve 'cider.nrepl.version/version))
+    (catch Throwable _ "not installed")), :id 6, :transport #object[clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613 0x4db94a5b clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613@4db94a5b]}
+Here cider-spy-hub-connect
+Here eval
+{:ns user, :op eval, :code
+, :file *cider-repl proja*, :line 4, :column 6, :id 12, :transport #object[clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613 0x5a1863df clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613@5a1863df]}
+Here eval
+{:ns user, :op eval, :code (+ 1 1)
+, :file *cider-repl proja*, :line 8, :column 6, :id 13, :transport #object[clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613 0x7e271de9 clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613@7e271de9]}
+Here eval
+````
+
+Repl Buffer:
+
+````
+WARNING: CIDER requires nREPL 0.2.12 (or newer) to work properly
+Here cider-spy-hub-connect
+Here eval
+{:ns user, :op eval, :code
+, :file *cider-repl proja*, :line 4, :column 6, :id 12, :transport #object[clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613 0x5a1863df clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613@5a1863df]}
+user>
+Here eval
+{:ns user, :op eval, :code (+ 1 1)
+, :file *cider-repl proja*, :line 8, :column 6, :id 13, :transport #object[clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613 0x7e271de9 clojure.tools.nrepl.middleware.pr_values$pr_values$fn$reify__613@7e271de9]}
+user> (+ 1 1)
+````
+
+
 ## Remember CIDER-SPY
 
 `cider-spy-connect-to-hub` is called when an nrepl-connection is established.
