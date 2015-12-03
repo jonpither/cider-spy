@@ -276,7 +276,7 @@ CIDER-SPY hub."
     (let ((inhibit-read-only t))
       (erase-buffer)
       (cider-spy-insert-buffer-contents
-       buffer (json-read-from-string str))
+       buffer (json-read-from-string (json-read-from-string str)))
       (font-lock-fontify-buffer))))
 
 (defun cider-spy-descendent-sections (section)
