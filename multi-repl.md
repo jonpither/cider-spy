@@ -1,5 +1,19 @@
 Below is a draft issue for the CIDER repo
 
+# 2015-12-5
+
+A good place to start is understanding the current REPL flow.
+I.e when you hit return, it sends something to the nREPL server, then it waits for a response. I'd be interested to learn what mirroring setup exists when you do a humble `lein repl`.
+
+cider-repl.el -> cider-repl--insert-prompt
+cider-repl-return -> cider-repl--send-input -> cider-repl-handler -> cider-repl-emit-result
+
+At some point ends up calling 'nrepl--eval-request'. I ought to see what the response of that is.
+
+This feels like it could be more of a big emacs Hack. I guess the big things are to change the prompt and intercept - none of this is particulary difficult.
+
+I ought to think more about how one connects to a shared repl? Be pretty cool if you could just eval a FN in the REPL to make it shared? Can two devs occupy the same port? Madness.
+
 # The Idea
 
 Hi CIDER devs,
