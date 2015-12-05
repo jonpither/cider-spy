@@ -18,6 +18,10 @@ Thinking, you have to actively share a session - this means that requests and re
 
 Thinking at the meta level, the most important step is the first. Simply write all REPL requests responses to a new CIDER buffer. We can do a simply command that starts capturing EVALs.
 
+TODO differentiate between adhoc repl commands and loading files - this used to be the case but no more. Perhaps something in the metadata can help?
+
+After an initial spike, looks like the only way is going to be intercepting the eval :-), Swapping out the transport.
+
 # The Idea
 
 Hi CIDER devs,
