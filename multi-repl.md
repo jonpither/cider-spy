@@ -14,6 +14,10 @@ This feels like it could be more of a big emacs Hack. I guess the big things are
 
 I ought to think more about how one connects to a shared repl? Be pretty cool if you could just eval a FN in the REPL to make it shared? Can two devs occupy the same port? Madness.
 
+Thinking, you have to actively share a session - this means that requests and responses are captured and shared out. There may be a problem with the hub, the way it sends msgs. I.e. we probably want to keep a window of requests and responses, and the local nREPL server basically ensures it's up to date.
+
+Thinking at the meta level, the most important step is the first. Simply write all REPL requests responses to a new CIDER buffer. We can do a simply command that starts capturing EVALs.
+
 # The Idea
 
 Hi CIDER devs,
