@@ -53,3 +53,14 @@ Anyway, why is this relevant? cider-spy uses a Netty based 'hub', a single runni
 So the Multi-REPL thing could potentially make use of this - a well tested infrastructure for nREPL sessions running in separate processes to exchange data with a centralised hub.
 
 What I'm wondering now is how this would work from a CIDER perspective, what code I should look at for creating a very similar REPL prompt.
+
+# 2016-02-10
+
+Does traffic go from third p direct to persons REPL? Or through the hub (Cider->middleware->hub->middleware->cider).
+Should at least TRY through it
+
+I could start in evil mode - browsing sessions, jack-in -> LOVE
+I.e. I jack into someone elses session! find a persons name, and jack-in, start sending stuff to it, or just have a buffer that shows output
+
+** The first FEATURE
+Watch someone elses REPL
