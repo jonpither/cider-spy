@@ -415,7 +415,8 @@ When a response comes from nREPL relevant to the CIDER-SPY summary operation,
 the current buffer will be updated accordingly."
   (let ((buffer (current-buffer)))
     (nrepl-send-request (list "op" "cider-spy-summary"
-                              "session" (cider-current-session))
+                              "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+                                          nrepl-session))
                         (nrepl-make-response-handler
                          buffer
                          (lambda (buffer str)
