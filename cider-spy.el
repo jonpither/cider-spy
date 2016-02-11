@@ -340,16 +340,30 @@ CIDER-SPY hub."
    (cider-find-var
     (cdr (assoc 'ns (cider-spy-section-data section))))))
 
+(defun cider-spy-dev-at-point ()
+  (cider-spy-with-section-at-point
+   (when (eq 'dev (cider-spy-section-type section))
+     (cdr (assoc 'alias (cdr (cider-spy-section-data section)))))))
+
+(defun cider-spy-my-alias ()
+  (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+    (with-current-buffer cider-spy-hub-connection-buffer
+      cider-spy-hub-registered-alias)))
+
 (defun cider-spy-send-to-dev ()
   (interactive)
-  (let ((my-alias
-         (with-current-buffer cider-spy-summary-buffer-nrepl-connection
-           (with-current-buffer cider-spy-hub-connection-buffer
-             cider-spy-hub-registered-alias))))
-    (cider-spy-with-section-at-point
-     (when (eq 'dev (cider-spy-section-type section))
-       (cider-spy-msg-edit my-alias
-                           (cdr (assoc 'alias (cdr (cider-spy-section-data section)))))))))
+  (cider-spy-msg-edit (cider-spy-my-alias) (cider-spy-dev-at-point)))
+
+(defun cider-spy-hub-watch-repl ()
+  "Watch another persons REPL"
+  (interactive)
+  (let ((target (cider-spy-dev-at-point)))
+    (nrepl-send-request
+     (list "op" "cider-spy-hub-watch-repl"
+           "session" (cider-current-session)
+           "target" target)
+     cider-spy-summary-buffer-nrepl-connection))
+  (message "Started watching REPL belonging to %s." target))
 
 (defun cider-spy-visit-form ()
   (cider-spy-with-section-at-point
@@ -397,10 +411,12 @@ CIDER-SPY hub."
                  (when cider-spy-hub-alias
                    (list "hub-alias" cider-spy-hub-alias)))
          (lambda (response)
-           (nrepl-dbind-response response (value err from recipient msg hub-registered-alias)
+           (nrepl-dbind-response response (value err from recipient msg hub-registered-alias repl)
              (cond (msg
                     ;; Received a message from another developer in the hub
                     (cider-spy-msg-receive recipient from msg))
+                   (repl
+                    (message "Watched REPL - %s" repl))
                    (hub-registered-alias
                     (cider-spy--dev-registered hub-connection-buffer hub-registered-alias))
                    (value
@@ -467,7 +483,8 @@ the current buffer will be updated accordingly."
      (list "op" "cider-spy-hub-alias"
            "session" (cider-current-session)
            "alias" alias)
-     nil)))
+     nil
+     cider-spy-summary-buffer-nrepl-connection)))
 
 (defun cider-spy-hub-disconnect ()
   "Disconnect from CIDER-SPY-HUB."
@@ -498,6 +515,7 @@ the current buffer will be updated accordingly."
     (define-key map (kbd "a") 'cider-spy-alias)
     (define-key map (kbd "s") 'cider-spy-send-to-dev)
     (define-key map (kbd "d") 'cider-spy-hub-disconnect)
+    (define-key map (kbd "w") 'cider-spy-hub-watch-repl)
     (define-key map (kbd "TAB") 'cider-spy-toggle-section-hidden)
     (define-key map (kbd "RET") 'cider-spy-visit-section)
     map))
@@ -512,7 +530,7 @@ the current buffer will be updated accordingly."
                         '(("Your .*:" . font-lock-function-name-face)
                           ("Devs Hacking:" . font-lock-keyword-face)))
 
-(add-hook 'nrepl-connected-hook 'cider-spy-connect-to-hub)
+;;(add-hook 'nrepl-connected-hook 'cider-spy-connect-to-hub)
 
 ;; cider-spy msg:
 
