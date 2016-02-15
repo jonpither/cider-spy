@@ -412,7 +412,8 @@ CIDER-SPY hub."
                  (when cider-spy-hub-alias
                    (list "hub-alias" cider-spy-hub-alias)))
          (lambda (response)
-           (nrepl-dbind-response response (value err from recipient msg hub-registered-alias repl target watch-repl-eval-code)
+           (nrepl-dbind-response response (value err from recipient msg hub-registered-alias repl target
+                                                 watch-repl-eval-code watch-repl-eval-out)
              (cond (msg
                     ;; Received a message from another developer in the hub
                     (cider-spy-msg-receive recipient from msg))
@@ -422,6 +423,8 @@ CIDER-SPY hub."
                     (cider-spy--dev-registered hub-connection-buffer hub-registered-alias))
                    (watch-repl-eval-code
                     (cider-spy-watch-receive-eval target watch-repl-eval-code))
+                   (watch-repl-eval-out
+                    (cider-spy-watch-receive-out target watch-repl-eval-out))
                    (value
                     (cider-spy-connection-buffer-emit hub-connection-buffer (concat value "\n")))
                    (err
@@ -558,8 +561,13 @@ the current buffer will be updated accordingly."
   "Receive a code eval from a watched REPL."
   (message "Received watched eval from %s" target)
   (with-current-buffer (cider-spy-watch--get-popup target)
-    (cider-spy-watch-buffer-emit (current-buffer) code)
-    (pop-to-buffer (current-buffer))))
+    (cider-spy-watch-buffer-emit (current-buffer) code)))
+
+(defun cider-spy-watch-receive-out (target out)
+  "Receive a code eval from a watched REPL."
+  (message "Received watched out from %s" target)
+  (with-current-buffer (cider-spy-watch--get-popup target)
+    (cider-spy-watch-buffer-emit (current-buffer) out)))
 
 ;; cider-spy msg:
 
