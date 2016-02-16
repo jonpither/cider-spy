@@ -58,6 +58,7 @@ Keyboard shortcut                    | Description
 <kbd>p</kbd>| Goto to previous section.
 <kbd>a</kbd>| Set `CIDER-SPY-HUB` alias.
 <kbd>s</kbd>| Send message to another dev (when cursor is on a dev).
+<kbd>w</kbd>| Watch another devs REPL session (when cursor is on a dev).
 <kbd>d</kbd>| Disconnect from the `CIDER-SPY-HUB`.
 <kbd>RETURN</kbd>| Visit section.
 <kbd>TAB</kbd>| Toggle section visibility.

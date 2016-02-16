@@ -78,6 +78,7 @@
 ;;  - `p` : Goto to previous section
 ;;  - `a` : Set `CIDER-SPY-HUB` alias
 ;;  - `s` : Send message to another dev (when cursor is on a dev)
+;;  - `w` : Watch another devs REPL session (when cursor is on a dev)
 ;;  - `d` : Disconnect from the `CIDER-SPY-HUB`
 ;;  - `RETURN` : Visit section
 ;;  - `TAB` : Toggle section visibility
