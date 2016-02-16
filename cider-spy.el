@@ -605,13 +605,12 @@ the current buffer will be updated accordingly."
  (defvar cider-spy-msg-input-start nil
    "Marker for the start of input."))
 
-(defun cider-spy-msg-send (from recipient msg)
+(defun cider-spy-msg-send (recipient msg)
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-send-msg"
          "session" (with-current-buffer (cider-current-connection)
                      cider-spy-summary-buffer-nrepl-connection)
-         "from" from
          "recipient" recipient
          "message" msg)
    nil
@@ -699,7 +698,7 @@ the current buffer will be updated accordingly."
       (goto-char (point-max))
       (let ((msg (buffer-substring cider-spy-msg-input-start (point))))
         (cider-spy-msg--insert-prompt)
-        (cider-spy-msg-send cider-spy-msg-alias cider-spy-msg-recipient msg)))))
+        (cider-spy-msg-send cider-spy-msg-recipient msg)))))
 
 (defun cider-spy-msg--get-popup (alias dev)
   (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template dev)))
