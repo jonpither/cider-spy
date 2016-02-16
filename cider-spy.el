@@ -397,13 +397,11 @@ CIDER-SPY hub."
       (unless (bolp) (insert "\n"))
       (insert (format "%s" value)))))
 
-;;;###autoload
-(defun cider-spy-connect-to-hub ()
+(defun cider-spy-connect-to-hub-with-nrepl-connection (nrepl-connection-buffer)
   "Connect to the CIDER-SPY-HUB.
-   Associate the *CIDER-SPY-HUB* buffer with the default CIDER connection buffer."
-  (interactive)
+   Associate the *CIDER-SPY-HUB* buffer with the supplied CIDER connection buffer."
   (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
-    (with-current-buffer (cider-default-connection)
+    (with-current-buffer nrepl-connection-buffer
       (setq cider-spy-hub-connection-buffer hub-connection-buffer)
       (let ((nrepl-request-counter (cl-incf cider-spy-request-counter)))
         (nrepl-send-request
@@ -430,6 +428,18 @@ CIDER-SPY hub."
                    (err
                     (cider-spy-connection-buffer-emit hub-connection-buffer (concat "OOPS\n" err "\n"))))))
          (current-buffer))))))
+
+(defun cider-spy-nrepl-connected-hook ()
+  "This is called when an nREPL connection buffer is formed, and
+   is executed with this buffer as the current buffer."
+  (cider-spy-connect-to-hub-with-nrepl-connection (current-buffer)))
+
+;;;###autoload
+(defun cider-spy-connect-to-hub ()
+  "Connect to the CIDER-SPY-HUB.
+   Associate the *CIDER-SPY-HUB* buffer with the default CIDER connection buffer."
+  (interactive)
+  (cider-spy-connect-to-hub-with-nrepl-connection (cider-default-connection)))
 
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
@@ -740,4 +750,4 @@ the current buffer will be updated accordingly."
 
 ;;; cider-spy.el ends here
 
-;;(add-hook 'nrepl-connected-hook 'cider-spy-connect-to-hub)
+(add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
