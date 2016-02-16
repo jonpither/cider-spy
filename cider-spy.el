@@ -360,7 +360,8 @@ CIDER-SPY hub."
   (let ((target (cider-spy-dev-at-point)))
     (nrepl-send-request
      (list "op" "cider-spy-hub-watch-repl"
-           "session" (cider-current-session)
+           "session" (with-current-buffer (cider-current-connection)
+                       cider-spy-summary-buffer-nrepl-connection)
            "target" target)
      nil
      cider-spy-summary-buffer-nrepl-connection)
@@ -486,7 +487,8 @@ the current buffer will be updated accordingly."
 
   (nrepl-send-request
    (list "op" "cider-spy-reset"
-         "session" (cider-current-session))
+         "session" (with-current-buffer (cider-current-connection)
+                     cider-spy-summary-buffer-nrepl-connection))
    nil
    cider-spy-summary-buffer-nrepl-connection))
 
@@ -497,7 +499,8 @@ the current buffer will be updated accordingly."
   (let ((alias (read-string "Set Alias: ")))
     (nrepl-send-request
      (list "op" "cider-spy-hub-alias"
-           "session" (cider-current-session)
+           "session" (with-current-buffer (cider-current-connection)
+                       cider-spy-summary-buffer-nrepl-connection)
            "alias" alias)
      nil
      cider-spy-summary-buffer-nrepl-connection)))
@@ -507,8 +510,10 @@ the current buffer will be updated accordingly."
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-disconnect"
-         "session" (cider-current-session))
-   nil))
+         "session" (with-current-buffer (cider-current-connection)
+                     cider-spy-summary-buffer-nrepl-connection))
+   nil
+   cider-spy-summary-buffer-nrepl-connection))
 
 (defun cider-spy-kill-buffers ()
   "Kill all CIDER-SPY buffers"
@@ -604,11 +609,13 @@ the current buffer will be updated accordingly."
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-send-msg"
-         "session" (cider-current-session)
+         "session" (with-current-buffer (cider-current-connection)
+                     cider-spy-summary-buffer-nrepl-connection)
          "from" from
          "recipient" recipient
          "message" msg)
-   nil)
+   nil
+   cider-spy-summary-buffer-nrepl-connection)
   (message "Sent message from %s to %s." from recipient))
 
 (defun cider-spy-msg-reset-markers ()
