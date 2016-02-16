@@ -360,8 +360,8 @@ CIDER-SPY hub."
   (let ((target (cider-spy-dev-at-point)))
     (nrepl-send-request
      (list "op" "cider-spy-hub-watch-repl"
-           "session" (with-current-buffer (cider-current-connection)
-                       cider-spy-summary-buffer-nrepl-connection)
+           "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+                       nrepl-session)
            "target" target)
      nil
      cider-spy-summary-buffer-nrepl-connection)
@@ -487,8 +487,8 @@ the current buffer will be updated accordingly."
 
   (nrepl-send-request
    (list "op" "cider-spy-reset"
-         "session" (with-current-buffer (cider-current-connection)
-                     cider-spy-summary-buffer-nrepl-connection))
+         "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+                       nrepl-session))
    nil
    cider-spy-summary-buffer-nrepl-connection))
 
@@ -499,8 +499,8 @@ the current buffer will be updated accordingly."
   (let ((alias (read-string "Set Alias: ")))
     (nrepl-send-request
      (list "op" "cider-spy-hub-alias"
-           "session" (with-current-buffer (cider-current-connection)
-                       cider-spy-summary-buffer-nrepl-connection)
+           "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+                       nrepl-session)
            "alias" alias)
      nil
      cider-spy-summary-buffer-nrepl-connection)))
@@ -510,8 +510,8 @@ the current buffer will be updated accordingly."
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-disconnect"
-         "session" (with-current-buffer (cider-current-connection)
-                     cider-spy-summary-buffer-nrepl-connection))
+         "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+                       nrepl-session))
    nil
    cider-spy-summary-buffer-nrepl-connection))
 
@@ -609,8 +609,8 @@ the current buffer will be updated accordingly."
   (interactive)
   (nrepl-send-request
    (list "op" "cider-spy-hub-send-msg"
-         "session" (with-current-buffer (cider-current-connection)
-                     cider-spy-summary-buffer-nrepl-connection)
+         "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+                       nrepl-session)
          "recipient" recipient
          "message" msg)
    nil
