@@ -394,6 +394,7 @@
    Associate the *CIDER-SPY-HUB* buffer with the supplied CIDER connection buffer."
   (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
     (with-current-buffer nrepl-connection-buffer
+      (add-hook 'kill-buffer-hook (lambda () (kill-buffer hub-connection-buffer)) t t)
       (setq cider-spy-hub-connection-buffer hub-connection-buffer)
       (let ((nrepl-request-counter (cl-incf cider-spy-request-counter)))
         (nrepl-send-request
@@ -461,7 +462,8 @@ the current buffer will be updated accordingly."
   (interactive)
   (with-current-buffer (cider-default-connection)
     (unless (and cider-spy-summary-buffer (buffer-name cider-spy-summary-buffer))
-      (let ((summary-buffer (get-buffer-create (generate-new-buffer-name "*cider spy*"))))
+      (lexical-let ((summary-buffer (get-buffer-create (generate-new-buffer-name "*cider spy*"))))
+        (add-hook 'kill-buffer-hook (lambda () (kill-buffer summary-buffer)) t t)
         (with-current-buffer summary-buffer
           (setq cider-spy-summary-buffer-nrepl-connection (cider-default-connection))
           (cider-spy-buffer-mode))
