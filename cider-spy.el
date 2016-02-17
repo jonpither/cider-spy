@@ -554,11 +554,11 @@ the current buffer will be updated accordingly."
 
 ;; cider-spy watch:
 
-(defvar cider-spy-msg-popup-buffer-name-template "*watch %s*"
+(defvar cider-spy-watch-popup-buffer-name-template "*watch %s*"
   "Buffer name for message popup.")
 
 (defun cider-spy-watch--get-popup (dev)
-  (let ((buffer-name (format cider-spy-msg-popup-buffer-name-template dev)))
+  (let ((buffer-name (format cider-spy-watch-popup-buffer-name-template dev)))
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
         ;; Initialise message buffer
