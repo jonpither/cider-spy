@@ -122,6 +122,10 @@
          :label "Devs Hacking:"
          :display-fn 'cider-spy-section-devs)
         (make-cider-spy-section-def
+         :type 'hub-connection
+         :label "Hub:"
+         :display-fn 'cider-spy-section-hub)
+        (make-cider-spy-section-def
          :type 'session
          :label "Your Session:"
          :extract-fn 'list
@@ -152,7 +156,7 @@
   "The CIDER-SPY summary sections used for presentation.")
 
 (defconst cider-spy-root-sections
-  '(devs session nses-loaded ns-trail fns))
+  '(devs hub-connection session nses-loaded ns-trail fns))
 
 (make-variable-buffer-local
  (defvar cider-spy-root-section nil
@@ -178,6 +182,13 @@
    (format "\n  Started %s, uptime: %s seconds."
            (cdr (assoc 'started section-data))
            (cdr (assoc 'seconds section-data)))))
+
+(defun cider-spy-section-hub (cider-spy-section section-data)
+  "Display info about session."
+  (insert
+   (format "\n  Connected %s as %s."
+           (cdr (assoc 'started section-data))
+           (cdr (assoc 'alias section-data)))))
 
 (defun cider-spy-section-ns-trail (cider-spy-section section-data)
   "Display string for namespace trail."
@@ -540,7 +551,8 @@ the current buffer will be updated accordingly."
 
 (font-lock-add-keywords 'cider-spy-buffer-mode
                         '(("Your .*:" . font-lock-function-name-face)
-                          ("Devs Hacking:" . font-lock-keyword-face)))
+                          ("Devs Hacking:" . font-lock-keyword-face)
+                          ("Hub:" . font-lock-keyword-face)))
 
 ;; cider-spy watch:
 
