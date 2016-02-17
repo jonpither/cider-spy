@@ -1,6 +1,6 @@
 ;;; cider-spy.el --- Spy on CIDER to get info
 
-;; Copyright © 2014 Jon Pither
+;; Copyright © 2016 Jon Pither
 
 ;; Author: Jon Pither <jon.pither@gmail.com>
 ;; URL: http://www.github.com/jonpither/cider-spy
