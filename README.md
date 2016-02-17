@@ -40,12 +40,6 @@ It can be useful to setup a global binding for the summary page for frequent acc
 
 If you want the developer interactivity behavours then you need a run a `CIDER-SPY-HUB`. See the documentation for how to set one up.
 
-Give yourself an alias on the hub:
-
-```el
-(setq cider-spy-hub-alias "my-alias")
-```
-
 # Keyboard Shortcuts
 
 These shortcuts are available on the `CIDER-SPY` summary buffer:

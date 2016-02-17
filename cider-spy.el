@@ -63,10 +63,6 @@
 ;; If you want the developer interactivity behavours then you need a run a `CIDER-SPY-HUB`.
 ;; See the documentation for how to set one up.
 ;;
-;; Give yourself an alias on the hub:
-;;
-;;     (setq cider-spy-hub-alias "my-alias")
-;;
 
 ;; # Keyboard Shortcuts
 ;;
@@ -100,12 +96,6 @@
 (require 'bookmark)
 (eval-when-compile
   (require 'cl))
-
-(defcustom cider-spy-hub-alias nil
-  "Set `cider-spy-hub-alias' for a handle to identify REPL session owner in the
-CIDER-SPY hub."
-  :type 'string
-  :group 'cider-spy)
 
 (make-variable-buffer-local
  (defvar cider-spy-summary-buffer nil
@@ -408,9 +398,7 @@ CIDER-SPY hub."
       (let ((nrepl-request-counter (cl-incf cider-spy-request-counter)))
         (nrepl-send-request
          (append (list "op" "cider-spy-hub-connect"
-                       "session" nrepl-session)
-                 (when cider-spy-hub-alias
-                   (list "hub-alias" cider-spy-hub-alias)))
+                       "session" nrepl-session))
          (lambda (response)
            (nrepl-dbind-response response (value err from recipient msg hub-registered-alias repl target
                                                  watch-repl-eval-code watch-repl-eval-out)
