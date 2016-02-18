@@ -400,16 +400,18 @@
       (unless (bolp) (insert "\n"))
       (insert (format "%s" value)))))
 
-(defun cider-spy-connect-to-hub-with-nrepl-connection (nrepl-connection-buffer)
-  "Connect to the CIDER-SPY-HUB.
+(defun cider-spy-register-hub-connection-buffer (nrepl-connection-buffer)
+  "Register the a cider-spy-connection-buffer to the CIDER-SPY-HUB.
+   This is so middleware can send hub-related messages to CIDER-SPY.
    Associate the *CIDER-SPY-HUB* buffer with the supplied CIDER connection buffer."
+  (interactive (list (cider-default-connection)))
   (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
     (with-current-buffer nrepl-connection-buffer
       (add-hook 'kill-buffer-hook (lambda () (kill-buffer hub-connection-buffer)) t t)
       (setq cider-spy-hub-connection-buffer hub-connection-buffer)
       (let ((nrepl-request-counter (cl-incf cider-spy-request-counter)))
         (nrepl-send-request
-         (append (list "op" "cider-spy-hub-connect"
+         (append (list "op" "cider-spy-hub-register-connection-buffer"
                        "session" nrepl-session))
          (lambda (response)
            (nrepl-dbind-response response (value err from recipient msg hub-registered-alias repl target
@@ -431,17 +433,11 @@
                     (cider-spy-connection-buffer-emit hub-connection-buffer (concat "OOPS\n" err "\n"))))))
          (current-buffer))))))
 
+;;;###autoload
 (defun cider-spy-nrepl-connected-hook ()
   "This is called when an nREPL connection buffer is formed, and
    is executed with this buffer as the current buffer."
-  (cider-spy-connect-to-hub-with-nrepl-connection (current-buffer)))
-
-;;;###autoload
-(defun cider-spy-connect-to-hub ()
-  "Connect to the CIDER-SPY-HUB.
-   Associate the *CIDER-SPY-HUB* buffer with the default CIDER connection buffer."
-  (interactive)
-  (cider-spy-connect-to-hub-with-nrepl-connection (cider-default-connection)))
+  (cider-spy-register-hub-connection-buffer (current-buffer)))
 
 (defun cider-spy-attach-nrepl-response-handler ()
   "Attach an nREPL response handler.
