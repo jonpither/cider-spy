@@ -682,10 +682,10 @@ the current buffer will be updated accordingly."
                 (-map (lambda (conn)
                         (concat
                          (file-relative-name
-                          (with-current-buffer (get-buffer conn)
+                          (with-current-buffer conn
                             nrepl-project-dir)
                           ) "/" relative-file))
-                      nrepl-connection-list))))
+                      (cider-connections)))))
 
 (defun cider-spy-msg-jump-to-bookmark ()
   "Jump to bookmark in chat buffer."
