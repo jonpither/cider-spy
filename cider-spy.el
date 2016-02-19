@@ -627,7 +627,7 @@ the current buffer will be updated accordingly."
                  "message" msg)
            nil
            connection-buffer)
-          (message "Sent message from %s to %s." from recipient))
+          (message "Sent message from to %s." recipient))
       (message "No hub connection buffer with alias %s." cider-spy-msg-alias))))
 
 (defun cider-spy-msg-reset-markers ()
