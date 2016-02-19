@@ -611,7 +611,7 @@ the current buffer will be updated accordingly."
                   (with-current-buffer nrepl-connection-buffer
                     (when cider-spy-hub-connection-buffer
                       (with-current-buffer cider-spy-hub-connection-buffer
-                        (eq alias cider-spy-hub-registered-alias)))))
+                        (string= alias cider-spy-hub-registered-alias)))))
                 (cider-connections))))
 
 (defun cider-spy-msg-send (recipient msg)
