@@ -387,9 +387,10 @@
 (defvar cider-spy-request-counter 1000
   "Continuation serial number counter.")
 
-(defun cider-spy--dev-registered (hub-connection-buffer hub-registered-alias)
+(defun cider-spy--hub-connection-buffer-registered (hub-connection-buffer hub-registered-alias)
   "Developer has become registered on the hub, this is their alias"
   (with-current-buffer hub-connection-buffer
+    (message "Connected to CIDER-SPY HUB as %s" hub-registered-alias)
     (setq cider-spy-hub-registered-alias hub-registered-alias)))
 
 (defun cider-spy-connection-buffer-emit (buffer value)
@@ -422,7 +423,7 @@
                    (repl
                     (message "Watched REPL - %s" repl))
                    (hub-registered-alias
-                    (cider-spy--dev-registered hub-connection-buffer hub-registered-alias))
+                    (cider-spy--hub-connection-buffer-registered hub-connection-buffer hub-registered-alias))
                    (watch-repl-eval-code
                     (cider-spy-watch-receive-eval target watch-repl-eval-code))
                    (watch-repl-eval-out
@@ -604,17 +605,30 @@ the current buffer will be updated accordingly."
  (defvar cider-spy-msg-input-start nil
    "Marker for the start of input."))
 
+(defun cider-spy-hub-find-nrepl-connection-buffer (alias)
+  "Find a matching nrepl connection buffer with a hub connection and the same alias."
+  (car (-filter (lambda (nrepl-connection-buffer)
+                  (with-current-buffer nrepl-connection-buffer
+                    (when cider-spy-hub-connection-buffer
+                      (with-current-buffer cider-spy-hub-connection-buffer
+                        (eq alias cider-spy-hub-registered-alias)))))
+                (cider-connections))))
+
 (defun cider-spy-msg-send (recipient msg)
   (interactive)
-  (nrepl-send-request
-   (list "op" "cider-spy-hub-send-msg"
-         "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
-                       nrepl-session)
-         "recipient" recipient
-         "message" msg)
-   nil
-   cider-spy-summary-buffer-nrepl-connection)
-  (message "Sent message from %s to %s." from recipient))
+  (let ((connection-buffer (cider-spy-hub-find-nrepl-connection-buffer cider-spy-msg-alias)))
+    (if connection-buffer
+        (progn
+          (nrepl-send-request
+           (list "op" "cider-spy-hub-send-msg"
+                 "session" (with-current-buffer connection-buffer
+                             nrepl-session)
+                 "recipient" recipient
+                 "message" msg)
+           nil
+           cider-spy-summary-buffer-nrepl-connection)
+          (message "Sent message from %s to %s." from recipient))
+      (message "No hub connection buffer with alias %s." cider-spy-msg-alias))))
 
 (defun cider-spy-msg-reset-markers ()
   "Reset all CIDER-SPY-MSG markers."
