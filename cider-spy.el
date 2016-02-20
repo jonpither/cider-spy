@@ -770,3 +770,35 @@ the current buffer will be updated accordingly."
 ;;; cider-spy.el ends here
 
 (add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
+
+;; Todo will move the below arrange once proven:
+
+(defun cider-spy-multi-repl--get-popup ()
+  (interactive)
+  (let ((buffer-name "*multi-repl*"))
+    (unless (get-buffer buffer-name)
+      (with-current-buffer (get-buffer-create buffer-name)
+        ;; Initialise message buffer
+        (cider-repl-reset-markers)
+        (cider-spy-multi-repl-popup-mode)
+
+        ;; Ripping from CIDER:
+        (when (zerop (buffer-size))
+          (insert (propertize "; Welcome to the Multi REPL!" 'font-lock-face 'font-lock-comment-face)))
+        (goto-char (point-max))
+        (cider-repl--mark-output-start)
+        (cider-repl--mark-input-start)
+        (cider-repl--insert-prompt "foo")))
+    (get-buffer buffer-name)))
+
+;; (progn
+;;   (kill-buffer "*multi-repl*")
+;;   (cider-spy-multi-repl--get-popup))
+
+(defvar cider-spy-multi-repl-popup-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") 'cider-spy-msg-return)
+    (define-key map (kbd "C-c C-b") 'cider-spy-msg-send-bookmark)
+    map))
+
+(define-derived-mode cider-spy-multi-repl-popup-mode text-mode "Cider Spy Multi Repl Popup")
