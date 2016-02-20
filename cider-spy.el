@@ -779,21 +779,28 @@ the current buffer will be updated accordingly."
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
         ;; Initialise message buffer
-        (cider-repl-reset-markers)
         (cider-spy-multi-repl-popup-mode)
+        (cider-repl-reset-markers)
 
         ;; Ripping from CIDER:
         (when (zerop (buffer-size))
           (insert (propertize "; Welcome to the Multi REPL!" 'font-lock-face 'font-lock-comment-face)))
         (goto-char (point-max))
+
         (cider-repl--mark-output-start)
         (cider-repl--mark-input-start)
-        (cider-repl--insert-prompt "foo")))
+        (cider-repl--insert-prompt "Lets roll")))
     (get-buffer buffer-name)))
 
-;; (progn
-;;   (kill-buffer "*multi-repl*")
-;;   (cider-spy-multi-repl--get-popup))
+;; Ok, we have cider-repl-init (called from cider.el). This is called when an nREPL connection is established
+
+;; ->> cider-repl-create ->> cider-repl-reset-markers (and cider-repl-mode)
+;; ->> cider--connected-handler ->> cider-repl-init ->> cider-repl--insert-banner-and-prompt
+
+(progn
+  (kill-buffer "*multi-repl*")
+  (cider-spy-multi-repl--get-popup)
+  (pop-to-buffer (get-buffer "*multi-repl*")))
 
 (defvar cider-spy-multi-repl-popup-mode-map
   (let ((map (make-sparse-keymap)))
