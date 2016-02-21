@@ -425,9 +425,13 @@
                    (hub-registered-alias
                     (cider-spy--hub-connection-buffer-registered hub-connection-buffer hub-registered-alias))
                    (watch-repl-eval-code
-                    (cider-spy-watch-receive-eval target watch-repl-eval-code))
+                    (progn
+                      (cider-spy-multi-repl-receive-eval target watch-repl-eval-code)
+                      (cider-spy-watch-receive-eval target watch-repl-eval-code)))
                    (watch-repl-eval-out
-                    (cider-spy-watch-receive-out target watch-repl-eval-out))
+                    (progn
+                      (cider-spy-multi-repl-receive-out target watch-repl-eval-out)
+                      (cider-spy-watch-receive-out target watch-repl-eval-out)))
                    (value
                     (cider-spy-connection-buffer-emit hub-connection-buffer (concat value "\n")))
                    (err
@@ -775,11 +779,14 @@ the current buffer will be updated accordingly."
 (defvar cider-spy-multi-repl-buffer-name-template "*multi-repl %s*"
   "Buffer name for message popup.")
 
+(defun cider-spy-multi-repl-buffer-name-for-dev (dev)
+  (format cider-spy-multi-repl-buffer-name-template dev))
+
 ;; Todo will move the below arrange once proven:
 
 (defun cider-spy-multi-repl--get-popup (dev)
   (interactive)
-  (let ((buffer-name (format cider-spy-multi-repl-buffer-name-template dev)))
+  (let ((buffer-name (cider-spy-multi-repl-buffer-name-for-dev dev)))
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
         ;; Initialise message buffer
@@ -807,17 +814,26 @@ the current buffer will be updated accordingly."
            "target" target)
      nil
      cider-spy-summary-buffer-nrepl-connection)
-    (message "Started multi-REPL belonging to %s." target)))
+    (message "Started multi-REPL belonging to %s." target)
+    (pop-to-buffer buffer)))
 
-;; Ok, we have cider-repl-init (called from cider.el). This is called when an nREPL connection is established
+(defun cider-spy-multi-repl-emit-stdout (target string)
+  (with-current-buffer (get-buffer (cider-spy-multi-repl-buffer-name-for-dev dev))
+    (let ((face 'cider-repl-stdout-face))
+      (let ((pos (cider-repl--end-of-line-before-input-start))
+            (string (replace-regexp-in-string "\n\\'" "" string)))
+        (cider-repl--emit-output-at-pos (current-buffer) string face pos t)
+        (ansi-color-apply-on-region pos (point-max))))))
 
-;; ->> cider-repl-create ->> cider-repl-reset-markers (and cider-repl-mode)
-;; ->> cider--connected-handler ->> cider-repl-init ->> cider-repl--insert-banner-and-prompt
+(defun cider-spy-multi-repl-receive-eval (target code)
+  "Receive a code eval from a watched REPL."
+  (message "Received multi-repl eval from %s" target)
+  (cider-spy-multi-repl-emit-stdout target code))
 
-(progn
-  (kill-buffer "*multi-repl*")
-  (cider-spy-multi-repl--get-popup)
-  (pop-to-buffer (get-buffer "*multi-repl*")))
+(defun cider-spy-multi-repl-receive-out (target out)
+  "Receive a code eval from a watched REPL."
+  (message "Received multi-repl from %s" target)
+  (cider-spy-multi-repl-emit-stdout target out))
 
 (defvar cider-spy-multi-repl-popup-mode-map
   (let ((map (make-sparse-keymap)))
