@@ -536,6 +536,7 @@ the current buffer will be updated accordingly."
     (define-key map (kbd "s") 'cider-spy-send-to-dev)
     (define-key map (kbd "d") 'cider-spy-hub-disconnect)
     (define-key map (kbd "w") 'cider-spy-hub-watch-repl)
+    (define-key map (kbd "m") 'cider-spy-multi-repl)
     (define-key map (kbd "TAB") 'cider-spy-toggle-section-hidden)
     (define-key map (kbd "RET") 'cider-spy-visit-section)
     map))
@@ -771,11 +772,14 @@ the current buffer will be updated accordingly."
 
 (add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
 
+(defvar cider-spy-multi-repl-buffer-name-template "*multi-repl %s*"
+  "Buffer name for message popup.")
+
 ;; Todo will move the below arrange once proven:
 
-(defun cider-spy-multi-repl--get-popup ()
+(defun cider-spy-multi-repl--get-popup (dev)
   (interactive)
-  (let ((buffer-name "*multi-repl*"))
+  (let ((buffer-name (format cider-spy-multi-repl-buffer-name-template dev)))
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
         ;; Initialise message buffer
@@ -791,6 +795,19 @@ the current buffer will be updated accordingly."
         (cider-repl--mark-input-start)
         (cider-repl--insert-prompt "Lets roll")))
     (get-buffer buffer-name)))
+
+(defun cider-spy-multi-repl ()
+  (interactive)
+  (let* ((target (cider-spy-dev-at-point))
+         (buffer (cider-spy-multi-repl--get-popup target)))
+    (nrepl-send-request
+     (list "op" "cider-spy-hub-watch-repl"
+           "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
+                       nrepl-session)
+           "target" target)
+     nil
+     cider-spy-summary-buffer-nrepl-connection)
+    (message "Started multi-REPL belonging to %s." target)))
 
 ;; Ok, we have cider-repl-init (called from cider.el). This is called when an nREPL connection is established
 
