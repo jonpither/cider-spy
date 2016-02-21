@@ -819,7 +819,7 @@ the current buffer will be updated accordingly."
     (pop-to-buffer buffer)))
 
 (defun cider-spy-multi-repl-emit-stdout (target string)
-  (with-current-buffer (get-buffer (cider-spy-multi-repl-buffer-name-for-dev dev))
+  (with-current-buffer (get-buffer (cider-spy-multi-repl-buffer-name-for-dev target))
     (let ((face 'cider-repl-stdout-face))
       (let ((pos (cider-repl--end-of-line-before-input-start))
             (string (replace-regexp-in-string "\n\\'" "" string)))
