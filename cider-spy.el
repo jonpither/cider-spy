@@ -776,44 +776,45 @@ the current buffer will be updated accordingly."
 
 (add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
 
+
+;; Todo will move the below arrange once proven:
+
 (defvar cider-spy-multi-repl-buffer-name-template "*multi-repl %s*"
   "Buffer name for message popup.")
 
 (defun cider-spy-multi-repl-buffer-name-for-dev (dev)
   (format cider-spy-multi-repl-buffer-name-template dev))
 
-;; Todo will move the below arrange once proven:
-
-(defun cider-spy-multi-repl--get-popup (dev)
+;; todo, clean up, split up below
+(defun cider-spy-multi-repl--get-popup (nrepl-connection dev)
   (interactive)
   (let ((buffer-name (cider-spy-multi-repl-buffer-name-for-dev dev)))
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
-        ;; Initialise message buffer
         (cider-spy-multi-repl-popup-mode)
         (cider-repl-reset-markers)
 
-        ;; Ripping from CIDER:
         (when (zerop (buffer-size))
           (insert (propertize "; Welcome to the Multi REPL!" 'font-lock-face 'font-lock-comment-face)))
         (goto-char (point-max))
 
         (cider-repl--mark-output-start)
         (cider-repl--mark-input-start)
-        (cider-repl--insert-prompt "Lets roll")))
+        (cider-repl--insert-prompt "Lets roll"))
+
+      (nrepl-send-request
+       (list "op" "cider-spy-hub-watch-repl"
+             "session" (with-current-buffer nrepl-connection
+                         nrepl-session)
+             "target" target)
+       nil
+       nrepl-connection))
     (get-buffer buffer-name)))
 
 (defun cider-spy-multi-repl ()
   (interactive)
   (let* ((target (cider-spy-dev-at-point))
-         (buffer (cider-spy-multi-repl--get-popup target)))
-    (nrepl-send-request
-     (list "op" "cider-spy-hub-watch-repl"
-           "session" (with-current-buffer cider-spy-summary-buffer-nrepl-connection
-                       nrepl-session)
-           "target" target)
-     nil
-     cider-spy-summary-buffer-nrepl-connection)
+         (buffer (cider-spy-multi-repl--get-popup cider-spy-summary-buffer-nrepl-connection target)))
     (message "Started multi-REPL belonging to %s." target)
     (pop-to-buffer buffer)))
 
