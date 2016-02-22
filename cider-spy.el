@@ -94,6 +94,7 @@
 (require 'dash)
 (require 'cl-lib)
 (require 'bookmark)
+(require 'noflet)
 (eval-when-compile
   (require 'cl))
 
@@ -836,9 +837,26 @@ the current buffer will be updated accordingly."
   (message "Received multi-repl from %s" target)
   (cider-spy-multi-repl-emit-stdout target out))
 
+;; is the big guy to hack: cider-repl-return
+;; is it wise to redefine fns? i.e. cider-nrepl-request:eval and cider--nrepl-pprint-eval-request
+
+;; cider-repl--send-input -> cider-nrepl-request:pprint-eval -> cider-nrepl-send-request -> nrepl-send-request
+;; cider-repl--send-input -> cider-nrepl-request:eval -> nrepl-request:eval -> nrepl-send-request
+
+;; Other option here is to change CIDER, split up cider-repl--send-input, sanitise the above
+;; Though, for my spike, should probably hack over the top first
+
+(defun cider-spy-multi-repl-return ()
+  (interactive)
+  (noflet ((cider-nrepl-request:eval (input callback &optional ns line column)
+                                     (message "Sending"))
+           (cider-nrepl-request:pprint-eval (input callback &optional ns right-margin)
+                                            (message "Sending")))
+    (cider-repl-return)))
+
 (defvar cider-spy-multi-repl-popup-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "RET") 'cider-spy-msg-return)
+    (define-key map (kbd "RET") 'cider-spy-multi-repl-return)
     (define-key map (kbd "C-c C-b") 'cider-spy-msg-send-bookmark)
     map))
 
