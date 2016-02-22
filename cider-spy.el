@@ -823,6 +823,8 @@ the current buffer will be updated accordingly."
         (cider-repl--emit-output-at-pos (current-buffer) string face pos t)
         (ansi-color-apply-on-region pos (point-max))))))
 
+;; Current the 'eval code' gets printer BEFORE the prompt, but it would help immediate sanity if it were after..
+
 (defun cider-spy-multi-repl-receive-eval (target code)
   "Receive a code eval from a watched REPL."
   (message "Received multi-repl eval from %s" target)
