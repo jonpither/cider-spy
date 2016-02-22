@@ -828,11 +828,6 @@ the current buffer will be updated accordingly."
   (message "Received multi-repl eval from %s" target)
   (cider-spy-multi-repl-emit-stdout target code))
 
-(defun cider-spy-multi-repl-receive-out (target out)
-  "Receive a code eval from a watched REPL."
-  (message "Received multi-repl from %s" target)
-  (cider-spy-multi-repl-emit-stdout target out))
-
 ;; is the big guy to hack: cider-repl-return
 ;; is it wise to redefine fns? i.e. cider-nrepl-request:eval and cider--nrepl-pprint-eval-request
 
