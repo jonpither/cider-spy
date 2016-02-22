@@ -429,10 +429,6 @@
                     (progn
                       (cider-spy-multi-repl-receive-eval target watch-repl-eval-code)
                       (cider-spy-watch-receive-eval target watch-repl-eval-code)))
-                   (watch-repl-eval-out
-                    (progn
-                      (cider-spy-multi-repl-receive-out target watch-repl-eval-out)
-                      (cider-spy-watch-receive-out target watch-repl-eval-out)))
                    (value
                     (cider-spy-connection-buffer-emit hub-connection-buffer (concat value "\n")))
                    (err
@@ -801,15 +797,15 @@ the current buffer will be updated accordingly."
 
         (cider-repl--mark-output-start)
         (cider-repl--mark-input-start)
-        (cider-repl--insert-prompt "Lets roll"))
+        (cider-repl--insert-prompt "Lets roll")
 
-      (nrepl-send-request
-       (list "op" "cider-spy-hub-watch-repl"
-             "session" (with-current-buffer nrepl-connection
-                         nrepl-session)
-             "target" target)
-       nil
-       nrepl-connection))
+        (nrepl-send-request
+         (list "op" "cider-spy-hub-watch-repl"
+               "session" (with-current-buffer nrepl-connection
+                           nrepl-session)
+               "target" target)
+         (cider-repl-handler (current-buffer))
+         nrepl-connection)))
     (get-buffer buffer-name)))
 
 (defun cider-spy-multi-repl ()
