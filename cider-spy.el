@@ -818,12 +818,10 @@ the current buffer will be updated accordingly."
 (defun cider-spy-multi-repl-emit-stdout (target string)
   (with-current-buffer (get-buffer (cider-spy-multi-repl-buffer-name-for-dev target))
     (let ((face 'cider-repl-stdout-face))
-      (let ((pos (cider-repl--end-of-line-before-input-start))
+      (let ((pos cider-repl-input-start-mark)
             (string (replace-regexp-in-string "\n\\'" "" string)))
         (cider-repl--emit-output-at-pos (current-buffer) string face pos t)
         (ansi-color-apply-on-region pos (point-max))))))
-
-;; Current the 'eval code' gets printer BEFORE the prompt, but it would help immediate sanity if it were after..
 
 (defun cider-spy-multi-repl-receive-eval (target code)
   "Receive a code eval from a watched REPL."
