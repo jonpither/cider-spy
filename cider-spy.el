@@ -832,19 +832,21 @@ the current buffer will be updated accordingly."
   (message "Received multi-repl eval from %s" target)
   (cider-spy-multi-repl-emit-stdout target code))
 
-;; Need to hack nrepl-send-request, as to send a cider-spy-hub-multi-repl-eval
-
 (defun cider-spy-multi-repl-return ()
   (interactive)
   (noflet ((cider-nrepl-request:eval (input callback &optional ns line column additional-params)
                                      (let* ((connection cider-spy-multi-repl-connection)
                                             (session (with-current-buffer connection
                                                        nrepl-session)))
-                                       (nrepl-send-request (append (nrepl--eval-request input session ns line column) additional-params)
+                                       (nrepl-send-request (append (nrepl--eval-request input session ns line column)
+                                                                   (list "op" "cider-spy-hub-multi-repl-eval")
+                                                                   additional-params)
                                                            callback
                                                            connection))))
     ;; Open up a new request...
     (cider-repl-return)))
+
+;; what should happen when they hit return?
 
 (defvar cider-spy-multi-repl-popup-mode-map
   (let ((map (make-sparse-keymap)))
