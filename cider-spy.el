@@ -773,11 +773,14 @@ the current buffer will be updated accordingly."
 
 (add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
 
-
 ;; Todo will move the below arrange once proven:
 
 (defvar cider-spy-multi-repl-buffer-name-template "*multi-repl %s*"
   "Buffer name for message popup.")
+
+(make-variable-buffer-local
+ (defvar cider-spy-multi-repl-connection nil
+   "nREPL connection buffer for multi-repl."))
 
 (defun cider-spy-multi-repl-buffer-name-for-dev (dev)
   (format cider-spy-multi-repl-buffer-name-template dev))
@@ -789,6 +792,7 @@ the current buffer will be updated accordingly."
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
         (cider-spy-multi-repl-popup-mode)
+        (setq cider-spy-multi-repl-connection nrepl-connection)
         (cider-repl-reset-markers)
 
         (when (zerop (buffer-size))
@@ -828,10 +832,18 @@ the current buffer will be updated accordingly."
   (message "Received multi-repl eval from %s" target)
   (cider-spy-multi-repl-emit-stdout target code))
 
+;; Need to hack nrepl-send-request, as to send a cider-spy-hub-multi-repl-eval
+
 (defun cider-spy-multi-repl-return ()
   (interactive)
   (noflet ((cider-nrepl-request:eval (input callback &optional ns line column additional-params)
-                                     (message "Sending")))
+                                     (let* ((connection cider-spy-multi-repl-connection)
+                                            (session (with-current-buffer connection
+                                                       nrepl-session)))
+                                       (nrepl-send-request (append (nrepl--eval-request input session ns line column) additional-params)
+                                                           callback
+                                                           connection))))
+    ;; Open up a new request...
     (cider-repl-return)))
 
 (defvar cider-spy-multi-repl-popup-mode-map
