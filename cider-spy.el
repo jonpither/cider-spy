@@ -782,17 +782,22 @@ the current buffer will be updated accordingly."
  (defvar cider-spy-multi-repl-connection nil
    "nREPL connection buffer for multi-repl."))
 
+(make-variable-buffer-local
+ (defvar cider-spy-multi-repl-target nil
+   "The developer the multi-repl is interacting with."))
+
 (defun cider-spy-multi-repl-buffer-name-for-dev (dev)
   (format cider-spy-multi-repl-buffer-name-template dev))
 
 ;; todo, clean up, split up below
-(defun cider-spy-multi-repl--get-popup (nrepl-connection dev)
+(defun cider-spy-multi-repl--get-popup (nrepl-connection target)
   (interactive)
-  (let ((buffer-name (cider-spy-multi-repl-buffer-name-for-dev dev)))
+  (let ((buffer-name (cider-spy-multi-repl-buffer-name-for-dev target)))
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
         (cider-spy-multi-repl-popup-mode)
         (setq cider-spy-multi-repl-connection nrepl-connection)
+        (setq cider-spy-multi-repl-target target)
         (cider-repl-reset-markers)
 
         (when (zerop (buffer-size))
@@ -839,14 +844,12 @@ the current buffer will be updated accordingly."
                                             (session (with-current-buffer connection
                                                        nrepl-session)))
                                        (nrepl-send-request (append (nrepl--eval-request input session ns line column)
-                                                                   (list "op" "cider-spy-hub-multi-repl-eval")
+                                                                   (list "op" "cider-spy-hub-multi-repl-eval"
+                                                                         "target" cider-spy-multi-repl-target)
                                                                    additional-params)
                                                            callback
                                                            connection))))
-    ;; Open up a new request...
     (cider-repl-return)))
-
-;; what should happen when they hit return?
 
 (defvar cider-spy-multi-repl-popup-mode-map
   (let ((map (make-sparse-keymap)))
