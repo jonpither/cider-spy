@@ -10,4 +10,5 @@ echo "ECUKES_EMACS = $ECUKES_EMACS"
 "$ECUKES_EMACS" --version
 echo
 
+cask exec emacs -batch -Q -L . -eval "(progn (setq byte-compile-error-on-warn t) (batch-byte-compile))" cider-spy.el
 exec ./run-tests.sh $TAGS
