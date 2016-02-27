@@ -1,3 +1,4 @@
 .DS_Store
 .cask
 /ecukes.err
+cider-spy.elc
