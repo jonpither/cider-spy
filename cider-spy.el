@@ -855,6 +855,9 @@ the current buffer will be updated accordingly."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "RET") 'cider-spy-multi-repl-return)
     (define-key map (kbd "C-c C-b") 'cider-spy-msg-send-bookmark)
+    (define-key map (kbd "M-p") #'cider-repl-previous-input)
+    (define-key map (kbd "M-n") #'cider-repl-next-input)
     map))
 
-(define-derived-mode cider-spy-multi-repl-popup-mode text-mode "Cider Spy Multi Repl Popup")
+(define-derived-mode cider-spy-multi-repl-popup-mode text-mode "Cider Spy Multi Repl Popup"
+  (add-hook 'paredit-mode-hook (lambda () (clojure-paredit-setup cider-repl-mode-map))))
