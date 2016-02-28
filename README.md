@@ -2,7 +2,7 @@ _THIS PROJECT IS IN ACTIVE DEVELOPMENT. It's not ready for general use but will 
 
 [![Build Status](https://travis-ci.org/jonpither/cider-spy.svg?branch=master)](https://travis-ci.org/jonpither/cider-spy)
 
-Get visibility on CIDER nREPL sessions and help developers in teams to share information.
+CIDER-SPY has a Multi-Person REPL! Simply install CIDER-SPY so share you REPL with other developers. With CIDER-SPY you can also get visibility on CIDER nREPL sessions and help developers in teams to share information.
 
 Use CIDER-SPY to send code snippets and text exchanges to each other etc, as well as EMACS bookmarks.
 
@@ -25,6 +25,7 @@ clj-refactor in your path somewhere:
 
  - <a href="https://github.com/magnars/dash.el">dash.el</a>
  - <a href="https://github.com/clojure-emacs/cider">cider</a>
+ - <a href="https://github.com/nicferrier/emacs-noflet">noflet</a>
 
 # Setup
 
@@ -52,6 +53,7 @@ Keyboard shortcut                    | Description
 <kbd>p</kbd>| Goto to previous section.
 <kbd>a</kbd>| Set `CIDER-SPY-HUB` alias.
 <kbd>s</kbd>| Send message to another dev (when cursor is on a dev).
+<kbd>m</kbd>| Start a Multi-REPL with another dev's REPL session (when cursor is on a dev).
 <kbd>w</kbd>| Watch another devs REPL session (when cursor is on a dev).
 <kbd>d</kbd>| Disconnect from the `CIDER-SPY-HUB`.
 <kbd>RETURN</kbd>| Visit section.
@@ -69,16 +71,15 @@ Keyboard shortcut                    | Description
 
 This originally started life as a tool to help users learn about their own REPL behavour, and to function as an uber smart project navigation tool.
 
-Since then it's morphed into being a tool to help developers share information. I.e. to ping code to each other and see where colleagues are.
+Since then it's morphed into being a tool to help developers share information, and to be a Multi-REPL.
 
 ![Cider Spy Menu](/images/menu.png?raw=true)
 
 ## Credits
 
-Thanks to Magnars because unknown to him I used a lot of `magit` patterns and copied the `clj-refactor` build setup. The `CIDER` team also as it's a great tool and the support is terrific.
+Thanks to Magnars because unknown to him I used a lot of `magit` patterns and copied the `clj-refactor` build setup. Thanks also to Bozhidar Batsov and the read of the `CIDER` team.
 
 # License
 
-Copyright © 2014 Jon Pither
-
+Copyright © 2016 Jon Pither
 Distributed under the GNU General Public License, version 3
