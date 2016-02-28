@@ -417,9 +417,12 @@
                        "session" nrepl-session))
          (lambda (response)
            (nrepl-dbind-response response (value err from recipient msg hub-registered-alias repl target
-                                                 watch-repl-eval-code watch-repl-eval-out)
-             (cond (msg
-                    ;; Received a message from another developer in the hub
+                                                 watch-repl-eval-code watch-repl-eval-out outside-multi-repl-eval)
+             (cond (outside-multi-repl-eval
+                    ;; Received a REPL eval from another developer
+                    (cider-spy-multi-repl-incoming-eval response))
+                   (msg
+                    ;; Received a message from another developer
                     (cider-spy-msg-receive recipient from msg))
                    (repl
                     (message "Watched REPL - %s" repl))
@@ -427,7 +430,7 @@
                     (cider-spy--hub-connection-buffer-registered hub-connection-buffer hub-registered-alias))
                    (watch-repl-eval-code
                     (progn
-                      (cider-spy-multi-repl-receive-eval target watch-repl-eval-code)
+                      (cider-spy-multi-repl-receive-eval-code target watch-repl-eval-code)
                       (cider-spy-watch-receive-eval target watch-repl-eval-code)))
                    (value
                     (cider-spy-connection-buffer-emit hub-connection-buffer (concat value "\n")))
@@ -832,10 +835,14 @@ the current buffer will be updated accordingly."
         (cider-repl--emit-output-at-pos (current-buffer) string face pos t)
         (ansi-color-apply-on-region pos (point-max))))))
 
-(defun cider-spy-multi-repl-receive-eval (target code)
-  "Receive a code eval from a watched REPL."
+(defun cider-spy-multi-repl-receive-eval-code (target code)
+  "Receive a code eval request from a watched REPL."
   (message "Received multi-repl eval from %s" target)
   (cider-spy-multi-repl-emit-stdout target code))
+
+(defun cider-spy-multi-repl-incoming-eval (msg)
+  "Receive an eval message triggered from an outside developer."
+  (message "Received multi-repl incoming eval %s" msg))
 
 (defun cider-spy-multi-repl-return ()
   (interactive)
