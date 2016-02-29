@@ -407,7 +407,8 @@
    This is so middleware can send hub-related messages to CIDER-SPY.
    Associate the *CIDER-SPY-HUB* buffer with the supplied CIDER connection buffer."
   (interactive (list (cider-default-connection)))
-  (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*"))))
+  (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*")))
+                (multi-repl-nrepl-handler (cider-repl-handler nrepl-connection-buffer)))
     (with-current-buffer nrepl-connection-buffer
       (add-hook 'kill-buffer-hook (lambda () (kill-buffer hub-connection-buffer)) t t)
       (setq cider-spy-hub-connection-buffer hub-connection-buffer)
@@ -419,8 +420,10 @@
            (nrepl-dbind-response response (value err from recipient msg hub-registered-alias repl target
                                                  watch-repl-eval-code watch-repl-eval-out outside-multi-repl-eval)
              (cond (outside-multi-repl-eval
-                    ;; Received a REPL eval from another developer
-                    (cider-spy-multi-repl-incoming-eval response))
+                    (progn
+                      ;; Received a REPL eval from another developer
+                      (message "Received multi-repl incoming eval %s" response)
+                      (funcall multi-repl-nrepl-handler response)))
                    (msg
                     ;; Received a message from another developer
                     (cider-spy-msg-receive recipient from msg))
@@ -839,10 +842,6 @@ the current buffer will be updated accordingly."
   "Receive a code eval request from a watched REPL."
   (message "Received multi-repl eval from %s" target)
   (cider-spy-multi-repl-emit-stdout target code))
-
-(defun cider-spy-multi-repl-incoming-eval (msg)
-  "Receive an eval message triggered from an outside developer."
-  (message "Received multi-repl incoming eval %s" msg))
 
 (defun cider-spy-multi-repl-return ()
   (interactive)
