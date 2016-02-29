@@ -2,7 +2,7 @@ _THIS PROJECT IS IN ACTIVE DEVELOPMENT. It's not ready for general use but will 
 
 [![Build Status](https://travis-ci.org/jonpither/cider-spy.svg?branch=master)](https://travis-ci.org/jonpither/cider-spy)
 
-CIDER-SPY has a Multi-Person REPL! Simply install CIDER-SPY so share you REPL with other developers. With CIDER-SPY you can also get visibility on CIDER nREPL sessions and help developers in teams to share information.
+CIDER-SPY has a Multi-Person REPL! Simply install CIDER-SPY to share you REPL with other developers. With CIDER-SPY you can also get visibility on CIDER nREPL sessions and help developers in teams to share information.
 
 Use CIDER-SPY to send code snippets and text exchanges to each other etc, as well as EMACS bookmarks.
 
@@ -77,7 +77,7 @@ Since then it's morphed into being a tool to help developers share information, 
 
 ## Credits
 
-Thanks to Magnars because unknown to him I used a lot of `magit` patterns and copied the `clj-refactor` build setup. Thanks also to Bozhidar Batsov and the read of the `CIDER` team.
+Thanks to Magnars because unknown to him I used a lot of `magit` patterns and copied the `clj-refactor` build setup. Thanks also to Bozhidar Batsov and the rest of the `CIDER` team.
 
 # License
 
