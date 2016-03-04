@@ -417,21 +417,17 @@
          (append (list "op" "cider-spy-hub-register-connection-buffer"
                        "session" nrepl-session))
          (lambda (response)
-           (nrepl-dbind-response response (value err from recipient msg hub-registered-alias repl target
+           (nrepl-dbind-response response (value err from recipient msg hub-registered-alias target
                                                  watch-repl-eval-code watch-repl-eval-out outside-multi-repl-eval)
              (cond (outside-multi-repl-eval
                     (funcall multi-repl-nrepl-handler response))
                    (msg
                     ;; Received a message from another developer
                     (cider-spy-msg-receive recipient from msg))
-                   (repl
-                    (message "Watched REPL - %s" repl))
                    (hub-registered-alias
                     (cider-spy--hub-connection-buffer-registered hub-connection-buffer hub-registered-alias))
                    (watch-repl-eval-code
-                    (progn
-                      (cider-spy-multi-repl-emit-stdout target watch-repl-eval-code)
-                      (cider-spy-watch-receive-eval target watch-repl-eval-code)))
+                    (cider-spy-multi-repl-emit-stdout target watch-repl-eval-code))
                    (value
                     (cider-spy-connection-buffer-emit hub-connection-buffer (concat value "\n")))
                    (err
@@ -555,39 +551,6 @@ the current buffer will be updated accordingly."
                         '(("Your .*:" . font-lock-function-name-face)
                           ("Devs Hacking:" . font-lock-keyword-face)
                           ("Hub:" . font-lock-keyword-face)))
-
-;; cider-spy watch:
-
-(defvar cider-spy-watch-popup-buffer-name-template "*watch %s*"
-  "Buffer name for message popup.")
-
-(defun cider-spy-watch--get-popup (dev)
-  (let ((buffer-name (format cider-spy-watch-popup-buffer-name-template dev)))
-    (unless (get-buffer buffer-name)
-      (with-current-buffer (get-buffer-create buffer-name)
-        ;; Initialise message buffer
-        (cider-spy-popup-mode)))
-    (get-buffer buffer-name)))
-
-(defun cider-spy-watch-buffer-emit (buffer value)
-  "Emit into BUFFER the provided VALUE."
-  (with-current-buffer buffer
-    (let ((inhibit-read-only t))
-      (goto-char (max-char))
-      (unless (bolp) (insert "\n"))
-      (insert (format "%s" value)))))
-
-(defun cider-spy-watch-receive-eval (target code)
-  "Receive a code eval from a watched REPL."
-  (message "Received watched eval from %s" target)
-  (with-current-buffer (cider-spy-watch--get-popup target)
-    (cider-spy-watch-buffer-emit (current-buffer) code)))
-
-(defun cider-spy-watch-receive-out (target out)
-  "Receive a code eval from a watched REPL."
-  (message "Received watched out from %s" target)
-  (with-current-buffer (cider-spy-watch--get-popup target)
-    (cider-spy-watch-buffer-emit (current-buffer) out)))
 
 ;; cider-spy msg:
 
@@ -770,13 +733,7 @@ the current buffer will be updated accordingly."
 
 (define-derived-mode cider-spy-popup-mode text-mode "Cider Spy Popup")
 
-(provide 'cider-spy)
-
-;;; cider-spy.el ends here
-
-(add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
-
-;; Todo will move the below arrange once proven:
+;; cider-spy multi repl:
 
 (defvar cider-spy-multi-repl-buffer-name-template "*multi-repl %s*"
   "Buffer name for message popup.")
@@ -859,3 +816,9 @@ the current buffer will be updated accordingly."
 
 (define-derived-mode cider-spy-multi-repl-popup-mode text-mode "Cider Spy Multi Repl Popup"
   (add-hook 'paredit-mode-hook (lambda () (clojure-paredit-setup cider-repl-mode-map))))
+
+(add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
+
+(provide 'cider-spy)
+
+;;; cider-spy.el ends here
