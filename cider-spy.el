@@ -749,7 +749,6 @@ the current buffer will be updated accordingly."
 (defun cider-spy-multi-repl-buffer-name-for-dev (dev)
   (format cider-spy-multi-repl-buffer-name-template dev))
 
-;; todo, clean up, split up below
 (defun cider-spy-multi-repl--get-popup (nrepl-connection target)
   (interactive)
   (let ((buffer-name (cider-spy-multi-repl-buffer-name-for-dev target)))
@@ -768,13 +767,17 @@ the current buffer will be updated accordingly."
         (cider-repl--mark-input-start)
         (cider-repl--insert-prompt "Lets roll")
 
-        (nrepl-send-request
-         (list "op" "cider-spy-hub-watch-repl"
-               "session" (with-current-buffer nrepl-connection
-                           nrepl-session)
-               "target" target)
-         (cider-repl-handler (current-buffer))
-         nrepl-connection)))
+        (lexical-let* ((multi-repl-buffer (current-buffer))
+                       (response-handler (cider-repl-handler multi-repl-buffer)))
+          (nrepl-send-request
+           (list "op" "cider-spy-hub-watch-repl"
+                 "session" (with-current-buffer nrepl-connection
+                             nrepl-session)
+                 "target" target)
+           (lambda (response)
+             (when (buffer-live-p multi-repl-buffer)
+               (funcall response-handler response)))
+           nrepl-connection))))
     (get-buffer buffer-name)))
 
 (defun cider-spy-multi-repl ()
