@@ -754,7 +754,7 @@ the current buffer will be updated accordingly."
   (let ((buffer-name (cider-spy-multi-repl-buffer-name-for-dev target)))
     (unless (get-buffer buffer-name)
       (with-current-buffer (get-buffer-create buffer-name)
-        (cider-spy-multi-repl-popup-mode)
+        (cider-spy-multi-repl-mode)
         (setq cider-spy-multi-repl-connection nrepl-connection)
         (setq cider-spy-multi-repl-target target)
         (cider-repl-reset-markers)
@@ -806,7 +806,7 @@ the current buffer will be updated accordingly."
                                                            connection))))
     (cider-repl-return)))
 
-(defvar cider-spy-multi-repl-popup-mode-map
+(defvar cider-spy-multi-repl-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "RET") 'cider-spy-multi-repl-return)
     (define-key map (kbd "C-c C-b") 'cider-spy-msg-send-bookmark)
@@ -814,7 +814,7 @@ the current buffer will be updated accordingly."
     (define-key map (kbd "M-n") #'cider-repl-next-input)
     map))
 
-(define-derived-mode cider-spy-multi-repl-popup-mode text-mode "Cider Spy Multi Repl Popup"
+(define-derived-mode cider-spy-multi-repl-mode text-mode "Cider Spy Multi Repl Popup"
   (add-hook 'paredit-mode-hook (lambda () (clojure-paredit-setup cider-repl-mode-map))))
 
 (add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
