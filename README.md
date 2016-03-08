@@ -37,6 +37,10 @@ All actions in `CIDER-SPY` are triggered from the `CIDER-SPY` summary page. To a
 
 It can be useful to setup a global binding for the summary page for frequent access, such as <kbd>C-c C-s</kbd>.
 
+Setup `paredit` to work with `cider-spy-multi-repl-mode`:
+
+    (add-hook 'cider-spy-multi-repl-mode 'enable-paredit-mode)
+
 ## Configuration for the HUB
 
 If you want the developer interactivity behavours then you need a run a `CIDER-SPY-HUB`. See the documentation for how to set one up.
