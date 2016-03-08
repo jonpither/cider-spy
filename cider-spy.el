@@ -790,12 +790,7 @@ the current buffer will be updated accordingly."
 (defun cider-spy-multi-repl-emit-stdout (target string)
   (let ((multi-repl-buffer (get-buffer (cider-spy-multi-repl-buffer-name-for-dev target))))
     (when (buffer-live-p multi-repl-buffer)
-      (with-current-buffer multi-repl-buffer
-        (let ((face 'cider-repl-stdout-face)
-              (pos cider-repl-input-start-mark)
-              (string (replace-regexp-in-string "\n\\'" "" string)))
-          (cider-repl--emit-output-at-pos (current-buffer) string face pos t)
-          (ansi-color-apply-on-region pos (point-max)))))))
+      (cider-repl-emit-stdout multi-repl-buffer string))))
 
 (defun cider-spy-multi-repl-return ()
   (interactive)
