@@ -806,15 +806,36 @@ the current buffer will be updated accordingly."
                                                            connection))))
     (cider-repl-return)))
 
+(defun cider-spy-multi-repl-interrupt ()
+  (interactive)
+  (lexical-let* ((connection cider-spy-multi-repl-connection)
+                 (session (with-current-buffer connection
+                            nrepl-session))
+                 (cider-spy-multi-repl-target cider-spy-multi-repl-target))
+    ;; lexical let fialign on cider-spy-multi-repl-target
+    (noflet ((nrepl-request:interrupt (pending-request-id callback connection session)
+                                      (nrepl-send-request (list "op" "cider-spy-hub-multi-repl-interrupt"
+                                                                "session" session
+                                                                "interrupt-id" pending-request-id
+                                                                "target" cider-spy-multi-repl-target)
+                                                          callback
+                                                          connection)))
+      (cider-interrupt))))
+
 (defvar cider-spy-multi-repl-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "RET") 'cider-spy-multi-repl-return)
     (define-key map (kbd "C-c C-b") 'cider-spy-msg-send-bookmark)
     (define-key map (kbd "M-p") #'cider-repl-previous-input)
     (define-key map (kbd "M-n") #'cider-repl-next-input)
+    (define-key map (kbd "C-c C-b") #'cider-spy-multi-repl-interrupt)
+    (define-key map (kbd "C-c C-c") #'cider-spy-multi-repl-interrupt)
+
     map))
 
 (define-derived-mode cider-spy-multi-repl-mode text-mode "Cider Spy Multi Repl Popup"
+;;  (clojure-font-lock-setup) TODO make this work
+
   (add-hook 'paredit-mode-hook (lambda () (clojure-paredit-setup cider-repl-mode-map))))
 
 (add-hook 'nrepl-connected-hook 'cider-spy-nrepl-connected-hook)
