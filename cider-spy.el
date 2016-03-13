@@ -749,17 +749,26 @@ the current buffer will be updated accordingly."
 (defun cider-spy-multi-repl-buffer-name-for-dev (dev)
   (format cider-spy-multi-repl-buffer-name-template dev))
 
+(defmacro cider-spy-multi-repl-with-prompt (eval-originator &rest body)
+  `(lexical-let ((wrapped-prompt-function cider-repl-prompt-function))
+     (let ((cider-repl-prompt-function (lambda (namespace)
+                                         (concat ,eval-originator ": " (funcall wrapped-prompt-function namespace)))))
+       ,@body)))
+
+(defun cider-spy-multi-repl-emit-stdout (target string)
+  (let ((multi-repl-buffer (get-buffer (cider-spy-multi-repl-buffer-name-for-dev target))))
+    (when (buffer-live-p multi-repl-buffer)
+      (cider-spy-multi-repl-with-prompt
+       target
+       (cider-repl-emit-prompt multi-repl-buffer))
+      (cider-repl-emit-stdout multi-repl-buffer string))))
+
 (defun cider-spy-multi-repl-nrepl-handler (buffer)
   (lexical-let* ((buffer buffer)
-                 (wrapped-cider-repl-handler (cider-repl-handler buffer))
-                 (wrapped-prompt-function cider-repl-prompt-function)
-                 (wrapping-prompt-function (lambda (namespace)
-                                             (concat cider-spy-eval-originator ": " (funcall wrapped-prompt-function namespace)))))
+                 (wrapped-cider-repl-handler (cider-repl-handler buffer)))
     (lambda (response)
       (when (buffer-live-p buffer)
-        (let ((cider-repl-prompt-function wrapping-prompt-function)
-              (cider-spy-eval-originator (nrepl-dict-get response "originator")))
-          (funcall wrapped-cider-repl-handler response))))))
+        (funcall wrapped-cider-repl-handler response)))))
 
 (defun cider-spy-multi-repl--get-popup (nrepl-connection target)
   (interactive)
@@ -796,11 +805,6 @@ the current buffer will be updated accordingly."
          (buffer (cider-spy-multi-repl--get-popup cider-spy-summary-buffer-nrepl-connection target)))
     (message "Started multi-REPL belonging to %s." target)
     (pop-to-buffer buffer)))
-
-(defun cider-spy-multi-repl-emit-stdout (target string)
-  (let ((multi-repl-buffer (get-buffer (cider-spy-multi-repl-buffer-name-for-dev target))))
-    (when (buffer-live-p multi-repl-buffer)
-      (cider-repl-emit-stdout multi-repl-buffer string))))
 
 (defun cider-spy-multi-repl-return ()
   (interactive)
