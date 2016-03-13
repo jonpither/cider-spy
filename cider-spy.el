@@ -408,7 +408,7 @@
    Associate the *CIDER-SPY-HUB* buffer with the supplied CIDER connection buffer."
   (interactive (list (cider-default-connection)))
   (lexical-let ((hub-connection-buffer (get-buffer-create (generate-new-buffer-name "*cider spy hub*")))
-                (multi-repl-nrepl-handler (cider-repl-handler nrepl-connection-buffer)))
+                (multi-repl-nrepl-handler (cider-spy-multi-repl-nrepl-handler nrepl-connection-buffer)))
     (with-current-buffer nrepl-connection-buffer
       (add-hook 'kill-buffer-hook (lambda () (kill-buffer hub-connection-buffer)) t t)
       (setq cider-spy-hub-connection-buffer hub-connection-buffer)
@@ -749,6 +749,18 @@ the current buffer will be updated accordingly."
 (defun cider-spy-multi-repl-buffer-name-for-dev (dev)
   (format cider-spy-multi-repl-buffer-name-template dev))
 
+(defun cider-spy-multi-repl-nrepl-handler (buffer)
+  (lexical-let* ((buffer buffer)
+                 (wrapped-cider-repl-handler (cider-repl-handler buffer))
+                 (wrapped-prompt-function cider-repl-prompt-function)
+                 (wrapping-prompt-function (lambda (namespace)
+                                             (concat cider-spy-eval-originator ": " (funcall wrapped-prompt-function namespace)))))
+    (lambda (response)
+      (when (buffer-live-p buffer)
+        (let ((cider-repl-prompt-function wrapping-prompt-function)
+              (cider-spy-eval-originator (nrepl-dict-get response "originator")))
+          (funcall wrapped-cider-repl-handler response))))))
+
 (defun cider-spy-multi-repl--get-popup (nrepl-connection target)
   (interactive)
   (let ((buffer-name (cider-spy-multi-repl-buffer-name-for-dev target)))
@@ -768,15 +780,13 @@ the current buffer will be updated accordingly."
         (cider-repl--insert-prompt "Lets roll")
 
         (lexical-let* ((multi-repl-buffer (current-buffer))
-                       (response-handler (cider-repl-handler multi-repl-buffer)))
+                       (response-handler (cider-spy-multi-repl-nrepl-handler multi-repl-buffer)))
           (nrepl-send-request
            (list "op" "cider-spy-hub-watch-repl"
                  "session" (with-current-buffer nrepl-connection
                              nrepl-session)
                  "target" target)
-           (lambda (response)
-             (when (buffer-live-p multi-repl-buffer)
-               (funcall response-handler response)))
+           response-handler
            nrepl-connection))))
     (get-buffer buffer-name)))
 
@@ -812,7 +822,6 @@ the current buffer will be updated accordingly."
                  (session (with-current-buffer connection
                             nrepl-session))
                  (cider-spy-multi-repl-target cider-spy-multi-repl-target))
-    ;; lexical let fialign on cider-spy-multi-repl-target
     (noflet ((nrepl-request:interrupt (pending-request-id callback connection session)
                                       (nrepl-send-request (list "op" "cider-spy-hub-multi-repl-interrupt"
                                                                 "session" session
