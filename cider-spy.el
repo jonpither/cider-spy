@@ -752,7 +752,7 @@ the current buffer will be updated accordingly."
 (defmacro cider-spy-multi-repl-with-prompt (eval-originator &rest body)
   `(lexical-let ((wrapped-prompt-function cider-repl-prompt-function))
      (let ((cider-repl-prompt-function (lambda (namespace)
-                                         (concat ,eval-originator ": " (funcall wrapped-prompt-function namespace)))))
+                                         (concat "*" ,eval-originator "* " (funcall wrapped-prompt-function namespace)))))
        ,@body)))
 
 (defun cider-spy-multi-repl-emit-stdout (target string)
@@ -761,7 +761,7 @@ the current buffer will be updated accordingly."
       (cider-spy-multi-repl-with-prompt
        target
        (cider-repl-emit-prompt multi-repl-buffer))
-      (cider-repl-emit-stdout multi-repl-buffer string))))
+      (cider-repl-emit-result multi-repl-buffer string))))
 
 (defun cider-spy-multi-repl-nrepl-handler (buffer)
   (lexical-let* ((buffer buffer)
